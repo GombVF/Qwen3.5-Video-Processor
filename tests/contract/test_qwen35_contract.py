@@ -27,7 +27,7 @@ def test_public_semantic_contract_has_no_temporal_fields():
         ),
         versions=VersionsDetail(
             torch="2.9.1", transformers="5.11.0", qwenVlUtils="0.0.14",
-            prompt="visual-analysis-qwen35-v4", schema="6.0",
+            prompt="visual-analysis-qwen35-v5", schema="6.0",
         ),
         visual=VisualContent(
             summary="Una persona prepara comida.",
@@ -147,7 +147,7 @@ def test_model_info_includes_kernel_diagnostics():
         transformersVersion="5.18.0",
         toolkitVersion="0.0.14",
         videoBackend="pyav",
-        promptVersion="visual-analysis-qwen35-v4",
+        promptVersion="visual-analysis-qwen35-v5",
         schemaVersion="6.0",
         loadedAt="2026-01-01T00:00:00",
     )
@@ -190,6 +190,48 @@ def test_communicated_ideas_and_themes_empty_when_no_text():
 def test_schema_version_is_6_0():
     content = VisualContent(summary="test")
     assert content.schemaVersion == "6.0"
+
+
+def test_metrics_response_includes_grounded_text_pass():
+    metrics = VisualMetricsResponse(
+        totalMs=1, peakVramBytes=1, windowCount=1,
+        globalOverviewPass=PassMetrics(),
+        semanticPass=PassMetrics(),
+        ocrPass=PassMetrics(),
+        groundedTextPass=PassMetrics(
+            status=PassStatus.COMPLETE,
+            inferenceCount=1,
+            inferenceMs=50,
+        ),
+    )
+    payload = metrics.model_dump()
+    assert "groundedTextPass" in payload
+    assert payload["groundedTextPass"]["status"] == "complete"
+    assert payload["groundedTextPass"]["inferenceCount"] == 1
+
+
+def test_pass_metrics_includes_input_tokens():
+    metrics = PassMetrics(inputTokens=1024)
+    payload = metrics.model_dump()
+    assert payload["inputTokens"] == 1024
+
+
+def test_pass_metrics_input_tokens_defaults_to_none():
+    metrics = PassMetrics()
+    payload = metrics.model_dump()
+    assert payload["inputTokens"] is None
+
+
+def test_grounded_text_pass_defaults_to_skipped_metrics():
+    metrics = VisualMetricsResponse(
+        totalMs=1, peakVramBytes=1, windowCount=1,
+        globalOverviewPass=PassMetrics(),
+        semanticPass=PassMetrics(),
+        ocrPass=PassMetrics(),
+    )
+    payload = metrics.model_dump()
+    assert "groundedTextPass" in payload
+    assert payload["groundedTextPass"]["inferenceCount"] == 0
 
 
 def test_no_window_identifiers_in_semantic_content():

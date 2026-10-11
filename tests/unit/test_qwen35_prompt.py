@@ -1,8 +1,10 @@
 import pytest
 
 from visual_service.model.prompt import (
+    SYNTHESIS_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
     build_global_overview_prompt,
+    build_grounded_synthesis_prompt,
     build_observation_prompt,
     build_ocr_content_prompt,
     build_ocr_prompt,
@@ -10,8 +12,8 @@ from visual_service.model.prompt import (
 from visual_service.settings import PROMPT_VERSION
 
 
-def test_prompt_version_is_v4():
-    assert PROMPT_VERSION == "visual-analysis-qwen35-v4"
+def test_prompt_version_is_v5():
+    assert PROMPT_VERSION == "visual-analysis-qwen35-v5"
 
 
 @pytest.mark.parametrize("forbidden", [
@@ -204,3 +206,113 @@ def test_old_ocr_prompt_still_available():
     prompt = build_ocr_prompt(image_count=4, max_texts_per_image=12)
     assert "visibleTexts" in prompt
     assert "communicatedIdeas" not in prompt
+
+
+# --- Grounded synthesis prompt tests ---
+
+def _synthesis_prompt():
+    return build_grounded_synthesis_prompt(
+        evidence_block="[text-0001] El\n[text-0002] problema",
+        evidence_count=2,
+        max_communicated_ideas=8,
+        max_themes=8,
+    )
+
+
+def test_synthesis_prompt_contains_evidence_block():
+    prompt = _synthesis_prompt()
+    assert "[text-0001] El" in prompt
+    assert "[text-0002] problema" in prompt
+
+
+def test_synthesis_prompt_prohibits_visual_claims():
+    prompt = _synthesis_prompt()
+    assert "no access to images" in prompt
+
+
+def test_synthesis_prompt_prohibits_audio_claims():
+    prompt = _synthesis_prompt()
+    assert "no access to audio" in prompt
+
+
+def test_synthesis_prompt_requires_evidence_ids():
+    prompt = _synthesis_prompt()
+    assert "evidence" in prompt.lower()
+    assert '"evidence"' in prompt
+
+
+def test_synthesis_prompt_states_evidence_may_be_incomplete():
+    prompt = _synthesis_prompt()
+    assert "incomplete" in prompt.lower()
+    assert "OCR errors" in prompt
+
+
+def test_synthesis_prompt_prohibits_invention():
+    prompt = _synthesis_prompt()
+    assert "Do not invent" in prompt
+
+
+def test_synthesis_prompt_prohibits_low_value_narration():
+    prompt = _synthesis_prompt()
+    assert "The text begins with" in prompt
+    assert "The sequence ends with" in prompt
+    assert "The word X appears" in prompt
+    assert "The phrase translates to" in prompt
+
+
+def test_synthesis_prompt_requests_global_ideas():
+    prompt = _synthesis_prompt()
+    assert "video-level" in prompt or "as a whole" in prompt
+
+
+def test_synthesis_prompt_includes_configured_limits():
+    prompt = build_grounded_synthesis_prompt(
+        evidence_block="[text-0001] test",
+        evidence_count=1,
+        max_communicated_ideas=5,
+        max_themes=3,
+    )
+    assert "5" in prompt
+    assert "3" in prompt
+
+
+def test_synthesis_system_prompt_is_text_only():
+    assert "pixels" not in SYNTHESIS_SYSTEM_PROMPT
+    assert "images" not in SYNTHESIS_SYSTEM_PROMPT.lower() or "no access to images" in SYNTHESIS_SYSTEM_PROMPT.lower()
+    assert "textual-evidence" in SYNTHESIS_SYSTEM_PROMPT
+
+
+def test_synthesis_system_prompt_prohibits_visual_audio():
+    assert "visual content" in SYNTHESIS_SYSTEM_PROMPT.lower() or "visual information" in SYNTHESIS_SYSTEM_PROMPT.lower()
+    assert "audio" in SYNTHESIS_SYSTEM_PROMPT.lower()
+
+
+def test_synthesis_prompt_prohibits_visual_descriptions():
+    prompt = _synthesis_prompt()
+    assert "Do not describe objects" in prompt or "objects, people, environments" in prompt
+
+
+def test_synthesis_prompt_sound_attribution():
+    prompt = _synthesis_prompt()
+    assert "On-screen text says" in prompt
+    assert "The runner hears" in prompt
+
+
+def test_synthesis_prompt_empty_evidence_rejected():
+    with pytest.raises(ValueError):
+        build_grounded_synthesis_prompt(
+            evidence_block="",
+            evidence_count=0,
+            max_communicated_ideas=8,
+            max_themes=8,
+        )
+
+
+def test_synthesis_prompt_invalid_limits_rejected():
+    with pytest.raises(ValueError):
+        build_grounded_synthesis_prompt(
+            evidence_block="[text-0001] test",
+            evidence_count=1,
+            max_communicated_ideas=-1,
+            max_themes=8,
+        )

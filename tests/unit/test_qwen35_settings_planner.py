@@ -69,6 +69,11 @@ def test_v3_prompt_version_still_accepted():
     assert config.qwen_prompt_version == "visual-analysis-qwen35-v3"
 
 
+def test_v4_prompt_version_still_accepted():
+    config = Settings(qwen_prompt_version="visual-analysis-qwen35-v4")
+    assert config.qwen_prompt_version == "visual-analysis-qwen35-v4"
+
+
 def test_grounded_text_understanding_default():
     config = Settings()
     assert config.grounded_text_understanding_enabled is True
@@ -81,22 +86,24 @@ def test_grounded_text_understanding_disabled():
 
 def test_grounded_text_limits_configurable():
     config = Settings(
-        max_communicated_ideas_per_ocr_batch=8,
-        max_themes_per_ocr_batch=10,
-        max_final_communicated_ideas=30,
-        max_final_themes=15,
+        max_final_communicated_ideas=5,
+        max_final_themes=3,
     )
-    assert config.max_communicated_ideas_per_ocr_batch == 8
-    assert config.max_themes_per_ocr_batch == 10
-    assert config.max_final_communicated_ideas == 30
-    assert config.max_final_themes == 15
+    assert config.max_final_communicated_ideas == 5
+    assert config.max_final_themes == 3
 
 
-def test_consolidation_idea_threshold_configurable():
+def test_grounded_text_limits_defaults():
     config = Settings()
-    assert config.consolidation_idea_threshold == 0.85
-    config2 = Settings(consolidation_idea_threshold=0.90)
-    assert config2.consolidation_idea_threshold == 0.90
+    assert config.max_final_communicated_ideas == 8
+    assert config.max_final_themes == 8
+
+
+def test_grounded_synthesis_max_new_tokens_configurable():
+    config = Settings()
+    assert config.grounded_synthesis_max_new_tokens == 512
+    config2 = Settings(grounded_synthesis_max_new_tokens=256)
+    assert config2.grounded_synthesis_max_new_tokens == 256
 
 
 def test_thinking_cannot_be_enabled():

@@ -18,10 +18,13 @@ from visual_service.model.consolidator import (
     WindowObservationResult,
     consolidate_results,
 )
+from visual_service.model.evidence import estimate_evidence_tokens, prepare_evidence
 from visual_service.model.qwen_analyzer import (
     GenerationAttempt,
+    SynthesisResult,
     WindowValidationFailed,
     analyze_global_overview,
+    analyze_grounded_synthesis,
     analyze_ocr_video,
     analyze_window,
 )
@@ -144,8 +147,6 @@ async def run_visual_pipeline(
 
     ocr_visible_texts: list[str] = []
     ocr_frame_sequences: list[int] | None = None
-    ocr_communicated_ideas: list[str] = []
-    ocr_themes: list[str] = []
     ocr_attempts: list[GenerationAttempt] = []
     ocr_decode_ms = 0
     ocr_selected_frames = 0
@@ -157,8 +158,6 @@ async def run_visual_pipeline(
             ocr_result = await analyze_ocr_video(runtime, media_path, duration_ms, config)
             ocr_visible_texts = ocr_result.visible_texts
             ocr_frame_sequences = ocr_result.text_frame_sequences
-            ocr_communicated_ideas = ocr_result.communicated_ideas
-            ocr_themes = ocr_result.themes
             ocr_attempts = ocr_result.attempts
             ocr_decode_ms = ocr_result.decode_ms
             ocr_selected_frames = ocr_result.selected_frames
@@ -174,6 +173,51 @@ async def run_visual_pipeline(
     else:
         ocr_status = PassStatus.SKIPPED
 
+    synthesis_communicated_ideas: list[str] = []
+    synthesis_themes: list[str] = []
+    synthesis_attempts: list[GenerationAttempt] = []
+    synthesis_status = PassStatus.SKIPPED
+    synthesis_result: SynthesisResult | None = None
+
+    if (
+        mode == AnalysisMode.SEMANTIC_AND_OCR
+        and config.grounded_text_understanding_enabled
+        and ocr_visible_texts
+    ):
+        evidence_set = prepare_evidence(ocr_visible_texts, ocr_frame_sequences)
+        if evidence_set.items:
+            evidence_tokens = estimate_evidence_tokens(
+                evidence_set.evidence_block, runtime.processor,
+            )
+            safe_budget = 4096 - config.grounded_synthesis_max_new_tokens
+            if evidence_tokens > safe_budget:
+                synthesis_status = PassStatus.PARTIAL
+                warnings.append(
+                    f"Evidence exceeds input budget ({evidence_tokens} tokens, "
+                    f"budget {safe_budget}); grounded synthesis skipped"
+                )
+            else:
+                try:
+                    synthesis_result = await analyze_grounded_synthesis(
+                        runtime, evidence_set, config,
+                    )
+                    synthesis_communicated_ideas = synthesis_result.communicated_ideas
+                    synthesis_themes = synthesis_result.themes
+                    synthesis_attempts.append(synthesis_result.attempt)
+                    trace.attempts.append(synthesis_result.attempt)
+                    warnings.extend(synthesis_result.attempt.warnings)
+                    synthesis_status = (
+                        PassStatus.PARTIAL if synthesis_result.is_partial
+                        else PassStatus.COMPLETE
+                    )
+                except Exception as exc:
+                    logger.warning(
+                        "grounded_synthesis_failed",
+                        extra={"data": {"error": str(exc)}},
+                    )
+                    warnings.append(f"Grounded synthesis failed: {exc}")
+                    synthesis_status = PassStatus.FAILED
+
     consolidated = consolidate_results(
         window_results,
         global_summary=global_summary,
@@ -184,11 +228,8 @@ async def run_visual_pipeline(
         visible_text_threshold=config.consolidation_visible_text_threshold,
         text_frame_sequences=ocr_frame_sequences,
         fragment_neighborhood=config.consolidation_fragment_neighborhood,
-        communicated_ideas=ocr_communicated_ideas,
-        ocr_themes=ocr_themes,
-        idea_threshold=config.consolidation_idea_threshold,
-        max_communicated_ideas=config.max_final_communicated_ideas,
-        max_themes=config.max_final_themes,
+        communicated_ideas=synthesis_communicated_ideas,
+        themes=synthesis_themes,
     )
     total_ms = int((time.perf_counter() - started) * 1000)
     overview_metrics = _aggregate_attempts(overview_attempts)
@@ -213,10 +254,17 @@ async def run_visual_pipeline(
     ocr_metrics.selectedFrames = ocr_selected_frames
     ocr_metrics.isPartial = ocr_metrics.isPartial or ocr_is_partial
     ocr_metrics.status = ocr_status
+
+    synthesis_metrics = _aggregate_attempts(synthesis_attempts)
+    synthesis_metrics.status = synthesis_status
+    if synthesis_result and synthesis_result.attempt.input_tokens is not None:
+        synthesis_metrics.inputTokens = synthesis_result.attempt.input_tokens
+
     peak_vram = max(
         overview_metrics.peakVramBytes,
         semantic_metrics.peakVramBytes,
         ocr_metrics.peakVramBytes,
+        synthesis_metrics.peakVramBytes,
         0,
     )
 
@@ -225,6 +273,8 @@ async def run_visual_pipeline(
         "windowCount": len(windows),
         "observationCount": len(consolidated.observations),
         "visibleTextCount": len(consolidated.visible_texts),
+        "communicatedIdeaCount": len(consolidated.communicated_ideas),
+        "themeCount": len(consolidated.themes),
         "peakVramBytes": peak_vram,
         "analysisMode": mode.value,
     }})
@@ -238,6 +288,7 @@ async def run_visual_pipeline(
             globalOverviewPass=overview_metrics,
             semanticPass=semantic_metrics,
             ocrPass=ocr_metrics,
+            groundedTextPass=synthesis_metrics,
             windowAccounting=accounting,
         ),
         warnings=warnings,

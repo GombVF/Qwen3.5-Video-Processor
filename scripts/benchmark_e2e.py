@@ -180,7 +180,7 @@ async def run() -> None:
             result = await run_visual_pipeline(
                 runtime, media_path, duration_ms, settings, analysis_mode=mode,
             )
-            results.append({
+            video_entry = {
                 "media": str(media_path.resolve()),
                 "durationMs": duration_ms,
                 "metrics": result.metrics.model_dump(),
@@ -197,7 +197,20 @@ async def run() -> None:
                     "topics": result.consolidated.topics,
                 },
                 "attempts": [asdict(attempt) for attempt in result.trace.attempts],
-            })
+            }
+            synthesis_attempts = [
+                a for a in result.trace.attempts if a.pass_name == "grounded-synthesis"
+            ]
+            if synthesis_attempts:
+                sa = synthesis_attempts[0]
+                video_entry["groundedSynthesis"] = {
+                    "rawOutput": sa.raw_output,
+                    "inputTokens": sa.input_tokens,
+                    "generatedTokens": sa.generated_tokens,
+                    "inferenceMs": sa.inference_ms,
+                    "finishReason": sa.finish_reason,
+                }
+            results.append(video_entry)
 
         kd = runtime.kernel_diagnostics
         fla_calls = (
@@ -264,6 +277,9 @@ async def run() -> None:
                 "videoDecodeRetryDelayMs": settings.video_decode_retry_delay_ms,
                 "videoDecodeStrategy": "pyav-uniform",
                 "videoFramePolicy": settings.semantic_frame_policy.value,
+                "groundedSynthesisMaxNewTokens": settings.grounded_synthesis_max_new_tokens,
+                "maxFinalCommunicatedIdeas": settings.max_final_communicated_ideas,
+                "maxFinalThemes": settings.max_final_themes,
             },
             "warmup": warmup_record,
             "results": results,

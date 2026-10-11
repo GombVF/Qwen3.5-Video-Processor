@@ -80,6 +80,24 @@ class OcrContentBatchOutput(BaseModel):
     themes: list = Field(default_factory=list)
 
 
+class SynthesisIdeaItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    idea: str = Field(min_length=1)
+    evidence: list[str] = Field(min_length=1)
+
+
+class SynthesisThemeItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    theme: str = Field(min_length=1)
+    evidence: list[str] = Field(min_length=1)
+
+
+class SynthesisOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    communicatedIdeas: list[SynthesisIdeaItem] = Field(default_factory=list)
+    themes: list[SynthesisThemeItem] = Field(default_factory=list)
+
+
 @dataclass
 class SalvageResult:
     data: dict[str, Any]
@@ -386,6 +404,136 @@ def validate_ocr_content_batch(
         themes=themes,
     )
     return ValidationResult(output=content_output, warnings=warnings, is_partial=is_partial)
+
+
+def validate_synthesis_output(
+    raw_text: str,
+    *,
+    valid_evidence_ids: frozenset[str],
+    max_communicated_ideas: int,
+    max_themes: int,
+) -> ValidationResult:
+    try:
+        data, warnings = _parse_json_value(raw_text)
+    except ModelOutputInvalid:
+        salvaged = salvage_truncated_output(raw_text)
+        if salvaged is None:
+            raise
+        data = salvaged.data
+        warnings = list(salvaged.diagnostics)
+    if not isinstance(data, dict):
+        raise ModelOutputInvalid("Synthesis output must be one JSON object")
+
+    ideas_raw = data.get("communicatedIdeas", [])
+    themes_raw = data.get("themes", [])
+
+    if not isinstance(ideas_raw, list):
+        warnings.append("communicatedIdeas is not a list; using empty")
+        ideas_raw = []
+    if not isinstance(themes_raw, list):
+        warnings.append("themes is not a list; using empty")
+        themes_raw = []
+
+    valid_ideas: list[SynthesisIdeaItem] = []
+    seen_ideas: set[str] = set()
+    for idx, item_data in enumerate(ideas_raw):
+        if not isinstance(item_data, dict):
+            warnings.append(f"Rejected non-object communicatedIdeas[{idx}]")
+            continue
+        idea_text = item_data.get("idea", "")
+        if not isinstance(idea_text, str) or not idea_text.strip():
+            warnings.append(f"Rejected empty idea at communicatedIdeas[{idx}]")
+            continue
+        evidence = item_data.get("evidence", [])
+        if not isinstance(evidence, list) or not evidence:
+            warnings.append(f"Rejected idea with empty evidence at communicatedIdeas[{idx}]")
+            continue
+        valid_ev: list[str] = []
+        seen_ev: set[str] = set()
+        for ev_id in evidence:
+            if not isinstance(ev_id, str):
+                warnings.append(f"Ignored non-string evidence ID in communicatedIdeas[{idx}]")
+                continue
+            if ev_id in seen_ev:
+                warnings.append(f"Removed duplicate evidence ID {ev_id} in communicatedIdeas[{idx}]")
+                continue
+            seen_ev.add(ev_id)
+            if ev_id not in valid_evidence_ids:
+                warnings.append(f"Rejected unknown evidence ID {ev_id} in communicatedIdeas[{idx}]")
+                continue
+            valid_ev.append(ev_id)
+        if not valid_ev:
+            warnings.append(
+                f"Rejected idea with no valid evidence IDs at communicatedIdeas[{idx}]"
+            )
+            continue
+        idea_key = idea_text.strip().casefold()
+        if idea_key in seen_ideas:
+            warnings.append(f"Removed duplicate idea: {idea_text[:80]}")
+            continue
+        seen_ideas.add(idea_key)
+        valid_ideas.append(SynthesisIdeaItem(idea=idea_text.strip(), evidence=valid_ev))
+
+    if len(valid_ideas) > max_communicated_ideas:
+        warnings.append(
+            f"Truncated communicatedIdeas from {len(valid_ideas)} to {max_communicated_ideas}"
+        )
+        valid_ideas = valid_ideas[:max_communicated_ideas]
+
+    valid_themes: list[SynthesisThemeItem] = []
+    seen_themes: set[str] = set()
+    for idx, item_data in enumerate(themes_raw):
+        if not isinstance(item_data, dict):
+            warnings.append(f"Rejected non-object themes[{idx}]")
+            continue
+        theme_text = item_data.get("theme", "")
+        if not isinstance(theme_text, str) or not theme_text.strip():
+            warnings.append(f"Rejected empty theme at themes[{idx}]")
+            continue
+        evidence = item_data.get("evidence", [])
+        if not isinstance(evidence, list) or not evidence:
+            warnings.append(f"Rejected theme with empty evidence at themes[{idx}]")
+            continue
+        valid_ev = []
+        seen_ev: set[str] = set()
+        for ev_id in evidence:
+            if not isinstance(ev_id, str):
+                warnings.append(f"Ignored non-string evidence ID in themes[{idx}]")
+                continue
+            if ev_id in seen_ev:
+                warnings.append(f"Removed duplicate evidence ID {ev_id} in themes[{idx}]")
+                continue
+            seen_ev.add(ev_id)
+            if ev_id not in valid_evidence_ids:
+                warnings.append(f"Rejected unknown evidence ID {ev_id} in themes[{idx}]")
+                continue
+            valid_ev.append(ev_id)
+        if not valid_ev:
+            warnings.append(f"Rejected theme with no valid evidence IDs at themes[{idx}]")
+            continue
+        theme_key = theme_text.strip().casefold()
+        if theme_key in seen_themes:
+            warnings.append(f"Removed duplicate theme: {theme_text[:80]}")
+            continue
+        seen_themes.add(theme_key)
+        valid_themes.append(SynthesisThemeItem(theme=theme_text.strip(), evidence=valid_ev))
+
+    if len(valid_themes) > max_themes:
+        warnings.append(f"Truncated themes from {len(valid_themes)} to {max_themes}")
+        valid_themes = valid_themes[:max_themes]
+
+    output = SynthesisOutput(communicatedIdeas=valid_ideas, themes=valid_themes)
+    is_partial = (
+        len(valid_ideas) < len([
+            i for i in ideas_raw
+            if isinstance(i, dict) and isinstance(i.get("idea"), str) and i["idea"].strip()
+        ])
+        or len(valid_themes) < len([
+            t for t in themes_raw
+            if isinstance(t, dict) and isinstance(t.get("theme"), str) and t["theme"].strip()
+        ])
+    )
+    return ValidationResult(output=output, warnings=warnings, is_partial=is_partial)
 
 
 def salvage_truncated_output(raw_text: str) -> SalvageResult | None:

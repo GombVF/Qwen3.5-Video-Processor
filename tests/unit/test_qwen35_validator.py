@@ -417,3 +417,197 @@ def test_missing_themes_becomes_empty_array():
     result = validate_ocr_content_batch(raw, **_content_kwargs())
     assert result.output.themes == []
     assert result.output.communicatedIdeas == ["idea"]
+
+
+# --- Synthesis validation tests ---
+
+from visual_service.validation.output_validator import validate_synthesis_output
+
+
+_EVIDENCE_IDS = frozenset(["text-0001", "text-0002", "text-0003"])
+
+
+def _synthesis_kwargs():
+    return dict(valid_evidence_ids=_EVIDENCE_IDS, max_communicated_ideas=8, max_themes=8)
+
+
+def test_valid_synthesis_output_accepted():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "On-screen text discusses frustration.", "evidence": ["text-0001"]}
+        ],
+        "themes": [
+            {"theme": "frustration", "evidence": ["text-0002"]}
+        ],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].idea == "On-screen text discusses frustration."
+    assert len(result.output.themes) == 1
+
+
+def test_unknown_evidence_id_rejected():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "An idea.", "evidence": ["text-0001", "text-9999"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].evidence == ["text-0001"]
+    assert any("text-9999" in w for w in result.warnings)
+
+
+def test_all_evidence_ids_invalid_rejects_item():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Bad idea.", "evidence": ["text-9999"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+
+
+def test_empty_evidence_list_rejects_item():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "No evidence.", "evidence": []}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+
+
+def test_empty_idea_string_rejected():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "", "evidence": ["text-0001"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+
+
+def test_duplicate_evidence_ids_in_item_deduped():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "An idea.", "evidence": ["text-0001", "text-0001", "text-0002"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert result.output.communicatedIdeas[0].evidence == ["text-0001", "text-0002"]
+
+
+def test_duplicate_ideas_deduped():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Same idea.", "evidence": ["text-0001"]},
+            {"idea": "Same idea.", "evidence": ["text-0002"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+
+
+def test_duplicate_themes_deduped_case_insensitive():
+    raw = json.dumps({
+        "communicatedIdeas": [],
+        "themes": [
+            {"theme": "Frustration", "evidence": ["text-0001"]},
+            {"theme": "frustration", "evidence": ["text-0002"]},
+        ],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.themes) == 1
+
+
+def test_max_ideas_enforced():
+    ideas = [
+        {"idea": f"Idea {i}.", "evidence": ["text-0001"]}
+        for i in range(10)
+    ]
+    raw = json.dumps({"communicatedIdeas": ideas, "themes": []})
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 8
+
+
+def test_max_themes_enforced():
+    themes = [
+        {"theme": f"Theme {i}", "evidence": ["text-0001"]}
+        for i in range(10)
+    ]
+    raw = json.dumps({"communicatedIdeas": [], "themes": themes})
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.themes) == 8
+
+
+def test_valid_items_survive_invalid_neighbors():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Good idea.", "evidence": ["text-0001"]},
+            {"idea": "Bad idea.", "evidence": ["text-9999"]},
+            {"idea": "Another good idea.", "evidence": ["text-0002"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 2
+    assert result.output.communicatedIdeas[0].idea == "Good idea."
+    assert result.output.communicatedIdeas[1].idea == "Another good idea."
+
+
+def test_non_string_evidence_id_ignored():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "An idea.", "evidence": [1, "text-0001"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].evidence == ["text-0001"]
+
+
+def test_partial_evidence_validity_keeps_item():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Idea.", "evidence": ["text-0001", "text-9999", "text-0002"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].evidence == ["text-0001", "text-0002"]
+
+
+def test_synthesis_non_object_idea_rejected():
+    raw = json.dumps({
+        "communicatedIdeas": ["just a string"],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+
+
+def test_synthesis_truncated_salvage():
+    truncated = '{"communicatedIdeas": [{"idea": "Complete idea.", "evidence": ["text-0001"]}], "themes": [{"theme": "tru'
+    result = validate_synthesis_output(truncated, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].idea == "Complete idea."
+
+
+def test_synthesis_no_repair_inference():
+    raw = json.dumps({
+        "communicatedIdeas": [],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+    assert len(result.output.themes) == 0
+    assert not result.is_partial

@@ -9,11 +9,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
 
+from visual_service.model.evidence import EvidenceSet
 from visual_service.model.prompt import (
+    SYNTHESIS_SYSTEM_PROMPT,
     SYSTEM_PROMPT,
     build_global_overview_prompt,
+    build_grounded_synthesis_prompt,
     build_observation_prompt,
-    build_ocr_content_prompt,
     build_ocr_prompt,
 )
 from visual_service.settings import Settings
@@ -24,7 +26,7 @@ from visual_service.validation.output_validator import (
     validate_global_overview,
     validate_observations,
     validate_ocr_batch,
-    validate_ocr_content_batch,
+    validate_synthesis_output,
 )
 from visual_service.video.decoder import (
     build_video_content,
@@ -67,6 +69,7 @@ class GenerationAttempt:
     is_partial: bool = False
     decode_attempts: int = 1
     decode_strategy: str = "not-applicable"
+    input_tokens: int | None = None
 
 
 @dataclass
@@ -92,8 +95,18 @@ class OcrAnalysisResult:
     selected_frames: int
     warnings: list[str] = field(default_factory=list)
     is_partial: bool = False
-    communicated_ideas: list[str] = field(default_factory=list)
-    themes: list[str] = field(default_factory=list)
+
+
+@dataclass
+class SynthesisResult:
+    communicated_ideas: list[str]
+    themes: list[str]
+    evidence_given: list[dict]
+    raw_output: str
+    validated_ideas: list[dict]
+    validated_themes: list[dict]
+    attempt: GenerationAttempt
+    is_partial: bool = False
 
 
 async def wait_for_inference_complete() -> None:
@@ -135,6 +148,16 @@ async def analyze_ocr_video(
 ) -> OcrAnalysisResult:
     return await asyncio.to_thread(
         _locked_ocr_video, runtime, media_path, duration_ms, config,
+    )
+
+
+async def analyze_grounded_synthesis(
+    runtime: Any,
+    evidence_set: EvidenceSet,
+    config: Settings,
+) -> SynthesisResult:
+    return await asyncio.to_thread(
+        _locked_grounded_synthesis, runtime, evidence_set, config,
     )
 
 
@@ -232,7 +255,6 @@ def _locked_ocr_video(
     config: Settings,
 ) -> OcrAnalysisResult:
     with _inference_lock:
-        grounded = config.grounded_text_understanding_enabled
         frames, decode_ms = extract_ocr_frames(
             media_path,
             duration_ms=duration_ms,
@@ -243,25 +265,15 @@ def _locked_ocr_video(
         attempts: list[GenerationAttempt] = []
         visible_texts: list[str] = []
         text_frame_sequences: list[int] = []
-        communicated_ideas: list[str] = []
-        themes: list[str] = []
         warnings: list[str] = []
         is_partial = False
 
         for batch_start in range(0, len(frames), config.ocr_batch_size):
             batch = frames[batch_start:batch_start + config.ocr_batch_size]
-            if grounded:
-                prompt = build_ocr_content_prompt(
-                    image_count=len(batch),
-                    max_texts_per_image=config.max_visible_texts_per_image,
-                    max_communicated_ideas=config.max_communicated_ideas_per_ocr_batch,
-                    max_themes=config.max_themes_per_ocr_batch,
-                )
-            else:
-                prompt = build_ocr_prompt(
-                    image_count=len(batch),
-                    max_texts_per_image=config.max_visible_texts_per_image,
-                )
+            prompt = build_ocr_prompt(
+                image_count=len(batch),
+                max_texts_per_image=config.max_visible_texts_per_image,
+            )
             attempt = _generate_images(
                 runtime,
                 [item.image for item in batch],
@@ -270,54 +282,27 @@ def _locked_ocr_video(
                 pass_name=f"ocr-{batch_start // config.ocr_batch_size}",
             )
             attempts.append(attempt)
-            if grounded:
-                try:
-                    validation, partial, attempt_warnings = _validate_ocr_content_with_salvage(
-                        attempt,
-                        expected_image_count=len(batch),
-                        max_texts_per_image=config.max_visible_texts_per_image,
-                        max_communicated_ideas=config.max_communicated_ideas_per_ocr_batch,
-                        max_themes=config.max_themes_per_ocr_batch,
-                    )
-                except ModelOutputInvalid as exc:
-                    attempt.is_partial = True
-                    attempt.warnings.append(f"OCR content batch rejected: {exc}")
-                    warnings.extend(attempt.warnings)
-                    is_partial = True
-                    continue
-                attempt.is_partial = partial
-                attempt.warnings.extend(attempt_warnings)
+            try:
+                validation, partial, attempt_warnings = _validate_ocr_with_salvage(
+                    attempt,
+                    expected_image_count=len(batch),
+                    max_texts_per_image=config.max_visible_texts_per_image,
+                )
+            except ModelOutputInvalid as exc:
+                attempt.is_partial = True
+                attempt.warnings.append(f"OCR batch rejected: {exc}")
                 warnings.extend(attempt.warnings)
-                is_partial = is_partial or partial
-                for image in validation.output.images:
-                    global_frame_seq = batch[image.imageIndex].sequence
-                    for text in image.visibleTexts:
-                        visible_texts.append(text)
-                        text_frame_sequences.append(global_frame_seq)
-                communicated_ideas.extend(validation.output.communicatedIdeas)
-                themes.extend(validation.output.themes)
-            else:
-                try:
-                    validation, partial, attempt_warnings = _validate_ocr_with_salvage(
-                        attempt,
-                        expected_image_count=len(batch),
-                        max_texts_per_image=config.max_visible_texts_per_image,
-                    )
-                except ModelOutputInvalid as exc:
-                    attempt.is_partial = True
-                    attempt.warnings.append(f"OCR batch rejected: {exc}")
-                    warnings.extend(attempt.warnings)
-                    is_partial = True
-                    continue
-                attempt.is_partial = partial
-                attempt.warnings.extend(attempt_warnings)
-                warnings.extend(attempt.warnings)
-                is_partial = is_partial or partial
-                for image in validation.output.images:
-                    global_frame_seq = batch[image.imageIndex].sequence
-                    for text in image.visibleTexts:
-                        visible_texts.append(text)
-                        text_frame_sequences.append(global_frame_seq)
+                is_partial = True
+                continue
+            attempt.is_partial = partial
+            attempt.warnings.extend(attempt_warnings)
+            warnings.extend(attempt.warnings)
+            is_partial = is_partial or partial
+            for image in validation.output.images:
+                global_frame_seq = batch[image.imageIndex].sequence
+                for text in image.visibleTexts:
+                    visible_texts.append(text)
+                    text_frame_sequences.append(global_frame_seq)
 
         return OcrAnalysisResult(
             visible_texts=visible_texts,
@@ -327,8 +312,63 @@ def _locked_ocr_video(
             selected_frames=len(frames),
             warnings=warnings,
             is_partial=is_partial,
-            communicated_ideas=communicated_ideas,
-            themes=themes,
+        )
+
+
+def _locked_grounded_synthesis(
+    runtime: Any,
+    evidence_set: EvidenceSet,
+    config: Settings,
+) -> SynthesisResult:
+    with _inference_lock:
+        prompt = build_grounded_synthesis_prompt(
+            evidence_block=evidence_set.evidence_block,
+            evidence_count=len(evidence_set.items),
+            max_communicated_ideas=config.max_final_communicated_ideas,
+            max_themes=config.max_final_themes,
+        )
+        messages = [
+            {"role": "system", "content": SYNTHESIS_SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ]
+        attempt = _generate_text_only(
+            runtime,
+            messages,
+            max_new_tokens=config.grounded_synthesis_max_new_tokens,
+            pass_name="grounded-synthesis",
+        )
+        validation, partial, warnings = _validate_synthesis_with_salvage(
+            attempt,
+            valid_evidence_ids=evidence_set.id_set,
+            max_communicated_ideas=config.max_final_communicated_ideas,
+            max_themes=config.max_final_themes,
+        )
+        attempt.is_partial = partial
+        attempt.warnings.extend(warnings)
+
+        public_ideas = [item.idea for item in validation.output.communicatedIdeas]
+        public_themes = [item.theme for item in validation.output.themes]
+        validated_ideas = [
+            {"idea": item.idea, "evidence": item.evidence}
+            for item in validation.output.communicatedIdeas
+        ]
+        validated_themes = [
+            {"theme": item.theme, "evidence": item.evidence}
+            for item in validation.output.themes
+        ]
+        evidence_given = [
+            {"id": item.id, "text": item.text}
+            for item in evidence_set.items
+        ]
+        return SynthesisResult(
+            communicated_ideas=public_ideas,
+            themes=public_themes,
+            evidence_given=evidence_given,
+            raw_output=attempt.raw_output,
+            validated_ideas=validated_ideas,
+            validated_themes=validated_themes,
+            attempt=attempt,
+            is_partial=partial,
         )
 
 
@@ -415,6 +455,84 @@ def _generate_images(
     attempt.selected_frames = len(images)
     if images:
         attempt.width, attempt.height = images[0].size
+    return attempt
+
+
+def _generate_text_only(
+    runtime: Any,
+    messages: list[dict[str, Any]],
+    *,
+    max_new_tokens: int,
+    pass_name: str,
+) -> GenerationAttempt:
+    import torch
+
+    if runtime.thinking_enabled:
+        raise InferenceError("Thinking mode must be disabled for structured extraction")
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats(0)
+
+    preprocess_started = time.perf_counter()
+    prompt_text = runtime.processor.apply_chat_template(
+        messages,
+        tokenize=False,
+        add_generation_prompt=True,
+        enable_thinking=False,
+    )
+    inputs = runtime.processor(
+        text=[prompt_text],
+        images=None,
+        videos=None,
+        padding=True,
+        return_tensors="pt",
+    ).to(runtime.model.device)
+    preprocess_ms = int((time.perf_counter() - preprocess_started) * 1000)
+    input_tokens = int(inputs.input_ids.shape[1])
+
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+    inference_started = time.perf_counter()
+    try:
+        with torch.inference_mode():
+            output_ids = runtime.model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                do_sample=False,
+                use_cache=True,
+                pad_token_id=runtime.processor.tokenizer.eos_token_id,
+            )
+    except Exception as exc:
+        raise InferenceError(f"{pass_name} inference failed: {exc}") from exc
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+    inference_ms = int((time.perf_counter() - inference_started) * 1000)
+
+    generated_ids = output_ids[:, inputs.input_ids.shape[1]:]
+    generated_tokens = int(generated_ids.shape[1])
+    raw_output = runtime.processor.batch_decode(
+        generated_ids,
+        skip_special_tokens=True,
+        clean_up_tokenization_spaces=False,
+    )[0]
+    finish_reason = "length" if generated_tokens >= max_new_tokens else "stop"
+    peak_vram = int(torch.cuda.max_memory_allocated(0)) if torch.cuda.is_available() else 0
+
+    del inputs, output_ids, generated_ids
+    attempt = GenerationAttempt(
+        pass_name=pass_name,
+        raw_output=raw_output,
+        generated_tokens=generated_tokens,
+        visual_tokens=None,
+        finish_reason=finish_reason,
+        decode_ms=0,
+        preprocess_ms=preprocess_ms,
+        inference_ms=inference_ms,
+        peak_vram_bytes=peak_vram,
+        selected_frames=0,
+        width=0,
+        height=0,
+    )
+    attempt.input_tokens = input_tokens
     return attempt
 
 
@@ -585,45 +703,19 @@ def _validate_ocr_with_salvage(
         return result, True, warnings
 
 
-def _validate_ocr_content_with_salvage(
+def _validate_synthesis_with_salvage(
     attempt: GenerationAttempt,
     *,
-    expected_image_count: int,
-    max_texts_per_image: int,
+    valid_evidence_ids: frozenset[str],
     max_communicated_ideas: int,
     max_themes: int,
 ) -> tuple[Any, bool, list[str]]:
-    try:
-        return _validate_with_salvage(
-            attempt,
-            lambda raw: validate_ocr_content_batch(
-                raw,
-                image_count=expected_image_count,
-                max_texts_per_image=max_texts_per_image,
-                max_communicated_ideas=max_communicated_ideas,
-                max_themes=max_themes,
-            ),
-        )
-    except ModelOutputInvalid as original_error:
-        salvage = salvage_truncated_output(attempt.raw_output)
-        images = salvage.data.get("images") if salvage is not None else None
-        if not isinstance(images, list) or not images:
-            raise
-        recovered_count = len(images)
-        try:
-            result = validate_ocr_content_batch(
-                json.dumps(salvage.data, ensure_ascii=False),
-                image_count=recovered_count,
-                max_texts_per_image=max_texts_per_image,
-                max_communicated_ideas=max_communicated_ideas,
-                max_themes=max_themes,
-            )
-        except ModelOutputInvalid:
-            raise original_error
-        warnings = [
-            f"{attempt.pass_name}: recovered {recovered_count} of "
-            f"{expected_image_count} OCR content results after structural truncation"
-        ]
-        warnings.extend(salvage.diagnostics)
-        warnings.extend(result.warnings)
-        return result, True, warnings
+    return _validate_with_salvage(
+        attempt,
+        lambda raw: validate_synthesis_output(
+            raw,
+            valid_evidence_ids=valid_evidence_ids,
+            max_communicated_ideas=max_communicated_ideas,
+            max_themes=max_themes,
+        ),
+    )

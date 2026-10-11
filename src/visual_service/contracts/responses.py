@@ -116,6 +116,7 @@ class PassMetrics(BaseModel):
     preprocessMs: int = 0
     inferenceMs: int = 0
     generatedTokens: int = 0
+    inputTokens: int | None = None
     visualTokens: int | None = None
     peakVramBytes: int = 0
     inferenceCount: int = 0
@@ -141,6 +142,7 @@ class VisualMetricsResponse(BaseModel):
     globalOverviewPass: PassMetrics
     semanticPass: PassMetrics
     ocrPass: PassMetrics
+    groundedTextPass: PassMetrics = Field(default_factory=PassMetrics)
     windowAccounting: WindowAccounting = Field(default_factory=WindowAccounting)
 
 

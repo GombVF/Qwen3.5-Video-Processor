@@ -6,8 +6,6 @@ from visual_service.model.consolidator import (
     consolidate_results,
     _word_similarity,
     _remove_ocr_fragments,
-    _consolidate_communicated_ideas,
-    _consolidate_themes,
 )
 
 
@@ -272,155 +270,38 @@ def test_fragment_removal_diagnostics():
     assert any("subsumed" in d for d in diagnostics)
 
 
-# --- Communicated ideas consolidation ---
-
-def test_duplicate_ideas_across_batches_removed():
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(
-        [
-            "On-screen text presents running sounds as motivation to run faster.",
-            "On-screen text says running-footstep sounds are used to encourage faster running.",
-        ],
-        threshold=0.85,
-        max_ideas=20,
-        diagnostics=diagnostics,
-    )
-    assert len(result) == 2
-
-
-def test_exact_duplicate_ideas_removed():
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(
-        [
-            "On-screen text mentions wind chimes.",
-            "On-screen text mentions wind chimes.",
-        ],
-        threshold=0.85,
-        max_ideas=20,
-        diagnostics=diagnostics,
-    )
-    assert len(result) == 1
-    assert "wind chimes" in result[0]
-
-
-def test_distinct_ideas_remain_separate():
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(
-        [
-            "On-screen text presents running sounds as motivation to run faster.",
-            "On-screen text mentions unexpected wind chimes in the woods.",
-        ],
-        threshold=0.85,
-        max_ideas=20,
-        diagnostics=diagnostics,
-    )
-    assert len(result) == 2
-    assert any("running" in i for i in result)
-    assert any("wind chimes" in i for i in result)
-
-
-def test_more_complete_idea_variant_preserved():
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(
-        [
-            "On-screen text mentions running.",
-            "On-screen text mentions running as a way to get faster.",
-        ],
-        threshold=0.85,
-        max_ideas=20,
-        diagnostics=diagnostics,
-    )
-    assert len(result) <= 2
-
-
-def test_no_new_merged_sentence_manufactured():
-    ideas = [
-        "On-screen text presents running sounds as motivation.",
-        "On-screen text mentions unexpected wind chimes.",
-    ]
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(ideas, 0.85, 20, diagnostics)
-    for item in result:
-        assert item in ideas
-
-
-def test_idea_final_limit_respected():
-    ideas = [
-        "The runner uses footstep sounds for motivation.",
-        "Wind chimes appear unexpectedly in the forest.",
-        "A philosophical reflection on modern frustration is presented.",
-        "The text questions the value of excessive information.",
-        "Life and its meaning are explored through personal narrative.",
-        "Self-reflection is encouraged through visual poetry.",
-        "Technology has changed how we communicate daily.",
-        "Nature photography reveals hidden patterns in leaves.",
-        "Cooking traditions vary across Mediterranean cultures.",
-        "Travel broadens perspective and challenges assumptions.",
-        "Scientific discovery often begins with simple curiosity.",
-        "Architecture reflects the values of its era.",
-        "Fashion trends cycle through decades predictably.",
-    ]
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(ideas, 0.85, 10, diagnostics)
-    assert len(result) == 10
-    assert any("Truncated" in d for d in diagnostics)
-
-
-def test_earliest_idea_occurrence_preserved():
-    diagnostics: list[str] = []
-    result = _consolidate_communicated_ideas(
-        ["First version of idea.", "First version of idea."],
-        threshold=0.85,
-        max_ideas=20,
-        diagnostics=diagnostics,
-    )
-    assert result == ["First version of idea."]
-
-
-# --- Theme consolidation ---
-
-def test_themes_deduplicated_case_insensitively():
-    diagnostics: list[str] = []
-    result = _consolidate_themes(
-        ["Motivation", "motivation", "MOTIVATION"],
-        max_themes=12,
-        diagnostics=diagnostics,
-    )
-    assert result == ["Motivation"]
-
-
-def test_theme_order_stable():
-    diagnostics: list[str] = []
-    result = _consolidate_themes(
-        ["frustration", "motivation", "self-reflection"],
-        max_themes=12,
-        diagnostics=diagnostics,
-    )
-    assert result == ["frustration", "motivation", "self-reflection"]
-
-
-def test_theme_final_limit_respected():
-    themes = [f"theme-{i}" for i in range(20)]
-    diagnostics: list[str] = []
-    result = _consolidate_themes(themes, max_themes=5, diagnostics=diagnostics)
-    assert len(result) == 5
-    assert any("Truncated" in d for d in diagnostics)
-
+# --- Consolidation passes through synthesis results ---
 
 def test_visible_text_consolidation_unchanged_with_ideas():
     result = _consolidate(
         [_window(0, [])],
         visible_texts=["WHO ARE YOU?", "WHO ARE YOU", "WHO ARE YOU TODAY?"],
         communicated_ideas=["An idea."],
-        ocr_themes=["theme"],
+        themes=["theme"],
     )
     assert result.visible_texts == ["WHO ARE YOU?", "WHO ARE YOU TODAY?"]
     assert result.communicated_ideas == ["An idea."]
     assert result.themes == ["theme"]
 
 
+def test_synthesis_ideas_pass_through_consolidation():
+    result = _consolidate(
+        [_window(0, [])],
+        communicated_ideas=["Idea A.", "Idea B."],
+        themes=["theme-x"],
+    )
+    assert result.communicated_ideas == ["Idea A.", "Idea B."]
+    assert result.themes == ["theme-x"]
+
+
+def test_empty_synthesis_results_pass_through():
+    result = _consolidate([_window(0, [])])
+    assert result.communicated_ideas == []
+    assert result.themes == []
+
+
 def _consolidate(windows, visible_texts=(), text_frame_sequences=None,
-                 communicated_ideas=None, ocr_themes=None, **kwargs):
+                 communicated_ideas=None, themes=None, **kwargs):
     defaults = dict(
         global_summary="x",
         global_topics=[],
@@ -431,10 +312,7 @@ def _consolidate(windows, visible_texts=(), text_frame_sequences=None,
         text_frame_sequences=text_frame_sequences,
         fragment_neighborhood=3,
         communicated_ideas=communicated_ideas,
-        ocr_themes=ocr_themes,
-        idea_threshold=0.85,
-        max_communicated_ideas=20,
-        max_themes=12,
+        themes=themes,
     )
     defaults.update(kwargs)
     return consolidate_results(windows, **defaults)
