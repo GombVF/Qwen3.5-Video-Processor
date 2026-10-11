@@ -27,12 +27,16 @@ def test_public_semantic_contract_has_no_temporal_fields():
         ),
         versions=VersionsDetail(
             torch="2.9.1", transformers="5.11.0", qwenVlUtils="0.0.14",
-            prompt="visual-analysis-qwen35-v3", schema="5.0",
+            prompt="visual-analysis-qwen35-v4", schema="6.0",
         ),
         visual=VisualContent(
             summary="Una persona prepara comida.",
             observations=[ObservationResponse(order=1, type="action", description="Mezcla ingredientes.")],
-            visibleTexts=["RECETA"], objects=["tazón"], topics=["cocina"],
+            visibleTexts=["RECETA"],
+            communicatedIdeas=["On-screen text presents a recipe."],
+            themes=["cooking"],
+            objects=["tazón"],
+            topics=["cocina"],
         ),
         metrics=VisualMetricsResponse(
             totalMs=1, peakVramBytes=1, windowCount=1,
@@ -44,7 +48,7 @@ def test_public_semantic_contract_has_no_temporal_fields():
     forbidden = {"startMs", "endMs", "frameIndex", "frameIndices", "timestamp"}
     assert forbidden.isdisjoint(semantic.keys())
     assert forbidden.isdisjoint(semantic["observations"][0].keys())
-    assert semantic["schemaVersion"] == "5.0"
+    assert semantic["schemaVersion"] == "6.0"
 
 
 def test_pass_metrics_has_status_field():
@@ -143,10 +147,62 @@ def test_model_info_includes_kernel_diagnostics():
         transformersVersion="5.18.0",
         toolkitVersion="0.0.14",
         videoBackend="pyav",
-        promptVersion="visual-analysis-qwen35-v3",
-        schemaVersion="5.0",
+        promptVersion="visual-analysis-qwen35-v4",
+        schemaVersion="6.0",
         loadedAt="2026-01-01T00:00:00",
     )
     payload = info.model_dump()
     assert "kernelDiagnostics" in payload
     assert payload["kernelDiagnostics"]["linearAttentionBackend"] == "reference"
+
+
+# --- Grounded content understanding contract tests ---
+
+def test_visual_content_contains_communicated_ideas():
+    content = VisualContent(
+        summary="A person runs at night.",
+        communicatedIdeas=["On-screen text presents running as motivation."],
+        themes=["motivation"],
+    )
+    payload = content.model_dump()
+    assert "communicatedIdeas" in payload
+    assert payload["communicatedIdeas"] == ["On-screen text presents running as motivation."]
+
+
+def test_visual_content_contains_themes():
+    content = VisualContent(
+        summary="A person runs at night.",
+        communicatedIdeas=[],
+        themes=["motivation", "unexpected event"],
+    )
+    payload = content.model_dump()
+    assert "themes" in payload
+    assert payload["themes"] == ["motivation", "unexpected event"]
+
+
+def test_communicated_ideas_and_themes_empty_when_no_text():
+    content = VisualContent(summary="A cat sits on a mat.")
+    payload = content.model_dump()
+    assert payload["communicatedIdeas"] == []
+    assert payload["themes"] == []
+
+
+def test_schema_version_is_6_0():
+    content = VisualContent(summary="test")
+    assert content.schemaVersion == "6.0"
+
+
+def test_no_window_identifiers_in_semantic_content():
+    content = VisualContent(
+        summary="Test.",
+        communicatedIdeas=["An idea."],
+        themes=["theme"],
+        visibleTexts=["text"],
+    )
+    payload = content.model_dump()
+    forbidden = {
+        "windowIndex", "batchIndex", "ocrBatchId",
+        "startMs", "endMs", "frameIndex", "frameIndices",
+    }
+    for key in forbidden:
+        assert key not in payload, f"{key} should not appear in semantic content"

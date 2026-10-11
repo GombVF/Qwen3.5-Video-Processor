@@ -8,8 +8,8 @@ from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-PROMPT_VERSION = "visual-analysis-qwen35-v3"
-SCHEMA_VERSION = "5.0"
+PROMPT_VERSION = "visual-analysis-qwen35-v4"
+SCHEMA_VERSION = "6.0"
 
 
 class FramePolicy(str, Enum):
@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     qwen_schema_version: str = SCHEMA_VERSION
     analysis_language: str = "Spanish"
     analysis_mode: AnalysisMode = AnalysisMode.SEMANTIC_AND_OCR
+    grounded_text_understanding_enabled: bool = True
 
     semantic_window_duration_ms: int = 12_000
     semantic_window_overlap_ms: int = 2_000
@@ -107,11 +108,16 @@ class Settings(BaseSettings):
     max_visible_texts_per_image: int = 12
     max_objects_per_window: int = 12
     max_global_topics: int = 10
+    max_communicated_ideas_per_ocr_batch: int = 4
+    max_themes_per_ocr_batch: int = 6
+    max_final_communicated_ideas: int = 20
+    max_final_themes: int = 12
 
     consolidation_adjacent_threshold: float = 0.78
     consolidation_nonadjacent_threshold: float = 0.92
     consolidation_visible_text_threshold: float = 0.94
     consolidation_fragment_neighborhood: int = 3
+    consolidation_idea_threshold: float = 0.85
 
     @field_validator("media_root", mode="before")
     @classmethod
@@ -134,7 +140,7 @@ class Settings(BaseSettings):
     @field_validator("qwen_prompt_version")
     @classmethod
     def validate_prompt_version(cls, value: str) -> str:
-        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v2"}
+        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
         if value not in allowed:
             raise ValueError(f"Only {sorted(allowed)!r} are supported")
         return value

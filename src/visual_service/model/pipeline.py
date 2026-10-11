@@ -144,6 +144,8 @@ async def run_visual_pipeline(
 
     ocr_visible_texts: list[str] = []
     ocr_frame_sequences: list[int] | None = None
+    ocr_communicated_ideas: list[str] = []
+    ocr_themes: list[str] = []
     ocr_attempts: list[GenerationAttempt] = []
     ocr_decode_ms = 0
     ocr_selected_frames = 0
@@ -155,6 +157,8 @@ async def run_visual_pipeline(
             ocr_result = await analyze_ocr_video(runtime, media_path, duration_ms, config)
             ocr_visible_texts = ocr_result.visible_texts
             ocr_frame_sequences = ocr_result.text_frame_sequences
+            ocr_communicated_ideas = ocr_result.communicated_ideas
+            ocr_themes = ocr_result.themes
             ocr_attempts = ocr_result.attempts
             ocr_decode_ms = ocr_result.decode_ms
             ocr_selected_frames = ocr_result.selected_frames
@@ -180,6 +184,11 @@ async def run_visual_pipeline(
         visible_text_threshold=config.consolidation_visible_text_threshold,
         text_frame_sequences=ocr_frame_sequences,
         fragment_neighborhood=config.consolidation_fragment_neighborhood,
+        communicated_ideas=ocr_communicated_ideas,
+        ocr_themes=ocr_themes,
+        idea_threshold=config.consolidation_idea_threshold,
+        max_communicated_ideas=config.max_final_communicated_ideas,
+        max_themes=config.max_final_themes,
     )
     total_ms = int((time.perf_counter() - started) * 1000)
     overview_metrics = _aggregate_attempts(overview_attempts)

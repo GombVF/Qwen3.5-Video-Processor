@@ -13,6 +13,7 @@ from visual_service.model.prompt import (
     SYSTEM_PROMPT,
     build_global_overview_prompt,
     build_observation_prompt,
+    build_ocr_content_prompt,
     build_ocr_prompt,
 )
 from visual_service.settings import Settings
@@ -23,6 +24,7 @@ from visual_service.validation.output_validator import (
     validate_global_overview,
     validate_observations,
     validate_ocr_batch,
+    validate_ocr_content_batch,
 )
 from visual_service.video.decoder import (
     build_video_content,
@@ -90,6 +92,8 @@ class OcrAnalysisResult:
     selected_frames: int
     warnings: list[str] = field(default_factory=list)
     is_partial: bool = False
+    communicated_ideas: list[str] = field(default_factory=list)
+    themes: list[str] = field(default_factory=list)
 
 
 async def wait_for_inference_complete() -> None:
@@ -228,6 +232,7 @@ def _locked_ocr_video(
     config: Settings,
 ) -> OcrAnalysisResult:
     with _inference_lock:
+        grounded = config.grounded_text_understanding_enabled
         frames, decode_ms = extract_ocr_frames(
             media_path,
             duration_ms=duration_ms,
@@ -238,15 +243,25 @@ def _locked_ocr_video(
         attempts: list[GenerationAttempt] = []
         visible_texts: list[str] = []
         text_frame_sequences: list[int] = []
+        communicated_ideas: list[str] = []
+        themes: list[str] = []
         warnings: list[str] = []
         is_partial = False
 
         for batch_start in range(0, len(frames), config.ocr_batch_size):
             batch = frames[batch_start:batch_start + config.ocr_batch_size]
-            prompt = build_ocr_prompt(
-                image_count=len(batch),
-                max_texts_per_image=config.max_visible_texts_per_image,
-            )
+            if grounded:
+                prompt = build_ocr_content_prompt(
+                    image_count=len(batch),
+                    max_texts_per_image=config.max_visible_texts_per_image,
+                    max_communicated_ideas=config.max_communicated_ideas_per_ocr_batch,
+                    max_themes=config.max_themes_per_ocr_batch,
+                )
+            else:
+                prompt = build_ocr_prompt(
+                    image_count=len(batch),
+                    max_texts_per_image=config.max_visible_texts_per_image,
+                )
             attempt = _generate_images(
                 runtime,
                 [item.image for item in batch],
@@ -255,27 +270,54 @@ def _locked_ocr_video(
                 pass_name=f"ocr-{batch_start // config.ocr_batch_size}",
             )
             attempts.append(attempt)
-            try:
-                validation, partial, attempt_warnings = _validate_ocr_with_salvage(
-                    attempt,
-                    expected_image_count=len(batch),
-                    max_texts_per_image=config.max_visible_texts_per_image,
-                )
-            except ModelOutputInvalid as exc:
-                attempt.is_partial = True
-                attempt.warnings.append(f"OCR batch rejected: {exc}")
+            if grounded:
+                try:
+                    validation, partial, attempt_warnings = _validate_ocr_content_with_salvage(
+                        attempt,
+                        expected_image_count=len(batch),
+                        max_texts_per_image=config.max_visible_texts_per_image,
+                        max_communicated_ideas=config.max_communicated_ideas_per_ocr_batch,
+                        max_themes=config.max_themes_per_ocr_batch,
+                    )
+                except ModelOutputInvalid as exc:
+                    attempt.is_partial = True
+                    attempt.warnings.append(f"OCR content batch rejected: {exc}")
+                    warnings.extend(attempt.warnings)
+                    is_partial = True
+                    continue
+                attempt.is_partial = partial
+                attempt.warnings.extend(attempt_warnings)
                 warnings.extend(attempt.warnings)
-                is_partial = True
-                continue
-            attempt.is_partial = partial
-            attempt.warnings.extend(attempt_warnings)
-            warnings.extend(attempt.warnings)
-            is_partial = is_partial or partial
-            for image in validation.output.images:
-                global_frame_seq = batch[image.imageIndex].sequence
-                for text in image.visibleTexts:
-                    visible_texts.append(text)
-                    text_frame_sequences.append(global_frame_seq)
+                is_partial = is_partial or partial
+                for image in validation.output.images:
+                    global_frame_seq = batch[image.imageIndex].sequence
+                    for text in image.visibleTexts:
+                        visible_texts.append(text)
+                        text_frame_sequences.append(global_frame_seq)
+                communicated_ideas.extend(validation.output.communicatedIdeas)
+                themes.extend(validation.output.themes)
+            else:
+                try:
+                    validation, partial, attempt_warnings = _validate_ocr_with_salvage(
+                        attempt,
+                        expected_image_count=len(batch),
+                        max_texts_per_image=config.max_visible_texts_per_image,
+                    )
+                except ModelOutputInvalid as exc:
+                    attempt.is_partial = True
+                    attempt.warnings.append(f"OCR batch rejected: {exc}")
+                    warnings.extend(attempt.warnings)
+                    is_partial = True
+                    continue
+                attempt.is_partial = partial
+                attempt.warnings.extend(attempt_warnings)
+                warnings.extend(attempt.warnings)
+                is_partial = is_partial or partial
+                for image in validation.output.images:
+                    global_frame_seq = batch[image.imageIndex].sequence
+                    for text in image.visibleTexts:
+                        visible_texts.append(text)
+                        text_frame_sequences.append(global_frame_seq)
 
         return OcrAnalysisResult(
             visible_texts=visible_texts,
@@ -285,6 +327,8 @@ def _locked_ocr_video(
             selected_frames=len(frames),
             warnings=warnings,
             is_partial=is_partial,
+            communicated_ideas=communicated_ideas,
+            themes=themes,
         )
 
 
@@ -535,6 +579,50 @@ def _validate_ocr_with_salvage(
         warnings = [
             f"{attempt.pass_name}: recovered {recovered_count} of "
             f"{expected_image_count} OCR image results after structural truncation"
+        ]
+        warnings.extend(salvage.diagnostics)
+        warnings.extend(result.warnings)
+        return result, True, warnings
+
+
+def _validate_ocr_content_with_salvage(
+    attempt: GenerationAttempt,
+    *,
+    expected_image_count: int,
+    max_texts_per_image: int,
+    max_communicated_ideas: int,
+    max_themes: int,
+) -> tuple[Any, bool, list[str]]:
+    try:
+        return _validate_with_salvage(
+            attempt,
+            lambda raw: validate_ocr_content_batch(
+                raw,
+                image_count=expected_image_count,
+                max_texts_per_image=max_texts_per_image,
+                max_communicated_ideas=max_communicated_ideas,
+                max_themes=max_themes,
+            ),
+        )
+    except ModelOutputInvalid as original_error:
+        salvage = salvage_truncated_output(attempt.raw_output)
+        images = salvage.data.get("images") if salvage is not None else None
+        if not isinstance(images, list) or not images:
+            raise
+        recovered_count = len(images)
+        try:
+            result = validate_ocr_content_batch(
+                json.dumps(salvage.data, ensure_ascii=False),
+                image_count=recovered_count,
+                max_texts_per_image=max_texts_per_image,
+                max_communicated_ideas=max_communicated_ideas,
+                max_themes=max_themes,
+            )
+        except ModelOutputInvalid:
+            raise original_error
+        warnings = [
+            f"{attempt.pass_name}: recovered {recovered_count} of "
+            f"{expected_image_count} OCR content results after structural truncation"
         ]
         warnings.extend(salvage.diagnostics)
         warnings.extend(result.warnings)

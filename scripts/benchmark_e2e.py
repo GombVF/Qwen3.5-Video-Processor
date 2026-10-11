@@ -191,6 +191,8 @@ async def run() -> None:
                     "summary": result.consolidated.summary,
                     "observations": result.consolidated.observations,
                     "visibleTexts": result.consolidated.visible_texts,
+                    "communicatedIdeas": result.consolidated.communicated_ideas,
+                    "themes": result.consolidated.themes,
                     "objects": result.consolidated.objects,
                     "topics": result.consolidated.topics,
                 },
@@ -241,6 +243,7 @@ async def run() -> None:
                 "promptVersion": settings.qwen_prompt_version,
                 "schemaVersion": settings.qwen_schema_version,
                 "analysisMode": (mode or settings.analysis_mode).value,
+                "groundedTextUnderstandingEnabled": settings.grounded_text_understanding_enabled,
             },
             "kernelDiagnostics": kd.to_dict(),
             "configuration": {

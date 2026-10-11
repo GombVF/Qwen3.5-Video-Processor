@@ -4,13 +4,14 @@ from visual_service.model.prompt import (
     SYSTEM_PROMPT,
     build_global_overview_prompt,
     build_observation_prompt,
+    build_ocr_content_prompt,
     build_ocr_prompt,
 )
 from visual_service.settings import PROMPT_VERSION
 
 
-def test_prompt_version_is_v3():
-    assert PROMPT_VERSION == "visual-analysis-qwen35-v3"
+def test_prompt_version_is_v4():
+    assert PROMPT_VERSION == "visual-analysis-qwen35-v4"
 
 
 @pytest.mark.parametrize("forbidden", [
@@ -130,7 +131,76 @@ def test_observation_prompt_prohibits_object_type():
     (build_global_overview_prompt, {"language": "Spanish", "max_summary_sentences": -1, "max_topics": 1}),
     (build_observation_prompt, {"language": "Spanish", "max_observations": -1, "max_objects": 1}),
     (build_ocr_prompt, {"image_count": 0, "max_texts_per_image": 1}),
+    (build_ocr_content_prompt, {"image_count": 0, "max_texts_per_image": 1, "max_communicated_ideas": 4, "max_themes": 6}),
 ])
 def test_invalid_limits_rejected(builder, kwargs):
     with pytest.raises(ValueError):
         builder(**kwargs)
+
+
+# --- Grounded content prompt tests (section 9 of spec) ---
+
+def _content_prompt():
+    return build_ocr_content_prompt(
+        image_count=4,
+        max_texts_per_image=12,
+        max_communicated_ideas=4,
+        max_themes=6,
+    )
+
+
+def test_content_prompt_separates_transcription_from_interpretation():
+    prompt = _content_prompt()
+    assert "TRANSCRIPTION RULES" in prompt
+    assert "INTERPRETATION RULES" in prompt
+    assert "visibleTexts" in prompt
+    assert "communicatedIdeas" in prompt
+
+
+def test_content_prompt_prohibits_audio_inference():
+    prompt = _content_prompt()
+    assert "Never infer audio" in prompt
+    assert "Never claim that a sound" in prompt
+    assert "voice" in prompt
+    assert "song" in prompt
+    assert "dialogue" in prompt
+    assert "narration" in prompt
+
+
+def test_content_prompt_has_sound_attribution_rules():
+    prompt = _content_prompt()
+    assert "ATTRIBUTION RULES FOR SOUND-RELATED TEXT" in prompt
+    assert "On-screen text says" in prompt
+    assert 'Incorrect: "The runner hears' in prompt
+    assert 'Incorrect: "Wind chimes can be heard' in prompt
+
+
+def test_content_prompt_prohibits_translation_of_visible_texts():
+    prompt = _content_prompt()
+    assert "Do not translate" in prompt
+    assert "Preserve original language" in prompt
+
+
+def test_content_prompt_prohibits_fragment_completion():
+    prompt = _content_prompt()
+    assert "Do not complete partially visible words" in prompt
+    assert "Never combine fragments unless the complete phrase is visibly supported" in prompt
+
+
+def test_content_prompt_requests_empty_arrays_when_insufficient():
+    prompt = _content_prompt()
+    assert "Return empty arrays when evidence is insufficient" in prompt
+
+
+def test_content_prompt_separates_exact_text_from_interpretation():
+    prompt = _content_prompt()
+    assert "visibleTexts" in prompt
+    assert "communicatedIdeas" in prompt
+    assert "Never place an interpretation in visibleTexts" in prompt
+    assert "Never rewrite a transcription" in prompt
+
+
+def test_old_ocr_prompt_still_available():
+    prompt = build_ocr_prompt(image_count=4, max_texts_per_image=12)
+    assert "visibleTexts" in prompt
+    assert "communicatedIdeas" not in prompt

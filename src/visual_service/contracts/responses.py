@@ -149,6 +149,8 @@ class VisualContent(BaseModel):
     summary: str
     observations: list[ObservationResponse] = Field(default_factory=list)
     visibleTexts: list[str] = Field(default_factory=list)
+    communicatedIdeas: list[str] = Field(default_factory=list)
+    themes: list[str] = Field(default_factory=list)
     objects: list[str] = Field(default_factory=list)
     topics: list[str] = Field(default_factory=list)
 

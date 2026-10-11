@@ -64,6 +64,41 @@ def test_v2_prompt_version_still_accepted():
     assert config.qwen_prompt_version == "visual-analysis-qwen35-v2"
 
 
+def test_v3_prompt_version_still_accepted():
+    config = Settings(qwen_prompt_version="visual-analysis-qwen35-v3")
+    assert config.qwen_prompt_version == "visual-analysis-qwen35-v3"
+
+
+def test_grounded_text_understanding_default():
+    config = Settings()
+    assert config.grounded_text_understanding_enabled is True
+
+
+def test_grounded_text_understanding_disabled():
+    config = Settings(grounded_text_understanding_enabled=False)
+    assert config.grounded_text_understanding_enabled is False
+
+
+def test_grounded_text_limits_configurable():
+    config = Settings(
+        max_communicated_ideas_per_ocr_batch=8,
+        max_themes_per_ocr_batch=10,
+        max_final_communicated_ideas=30,
+        max_final_themes=15,
+    )
+    assert config.max_communicated_ideas_per_ocr_batch == 8
+    assert config.max_themes_per_ocr_batch == 10
+    assert config.max_final_communicated_ideas == 30
+    assert config.max_final_themes == 15
+
+
+def test_consolidation_idea_threshold_configurable():
+    config = Settings()
+    assert config.consolidation_idea_threshold == 0.85
+    config2 = Settings(consolidation_idea_threshold=0.90)
+    assert config2.consolidation_idea_threshold == 0.90
+
+
 def test_thinking_cannot_be_enabled():
     with pytest.raises(ValueError):
         Settings(qwen_enable_thinking=True)

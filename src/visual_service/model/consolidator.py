@@ -29,7 +29,9 @@ class ConsolidatedResult:
     visible_texts: list[str]
     objects: list[str]
     topics: list[str]
-    window_count: int
+    communicated_ideas: list[str] = field(default_factory=list)
+    themes: list[str] = field(default_factory=list)
+    window_count: int = 0
     diagnostics: list[str] = field(default_factory=list)
 
 
@@ -44,6 +46,11 @@ def consolidate_results(
     visible_text_threshold: float,
     text_frame_sequences: list[int] | None = None,
     fragment_neighborhood: int = 3,
+    communicated_ideas: list[str] | None = None,
+    ocr_themes: list[str] | None = None,
+    idea_threshold: float = 0.85,
+    max_communicated_ideas: int = 20,
+    max_themes: int = 12,
 ) -> ConsolidatedResult:
     diagnostics = [
         f"Window {window.window_index}: partial/salvaged output"
@@ -66,6 +73,18 @@ def consolidate_results(
     objects = _deduplicate_exact([item for window in windows for item in window.objects])
     topics = _deduplicate_exact(global_topics)
 
+    consolidated_ideas = _consolidate_communicated_ideas(
+        communicated_ideas or [],
+        idea_threshold,
+        max_communicated_ideas,
+        diagnostics,
+    )
+    consolidated_themes = _consolidate_themes(
+        ocr_themes or [],
+        max_themes,
+        diagnostics,
+    )
+
     return ConsolidatedResult(
         summary=global_summary.strip(),
         observations=[
@@ -75,6 +94,8 @@ def consolidate_results(
         visible_texts=texts,
         objects=objects,
         topics=topics,
+        communicated_ideas=consolidated_ideas,
+        themes=consolidated_themes,
         window_count=len(windows),
         diagnostics=diagnostics,
     )
@@ -244,3 +265,73 @@ def _word_similarity(left_words: set[str], right_words: set[str]) -> float:
     intersection = left_words & right_words
     union = left_words | right_words
     return len(intersection) / len(union)
+
+
+def _consolidate_communicated_ideas(
+    ideas: list[str],
+    threshold: float,
+    max_ideas: int,
+    diagnostics: list[str],
+) -> list[str]:
+    result: list[str] = []
+    for idea in ideas:
+        stripped = idea.strip()
+        if not stripped:
+            continue
+        candidate_norm = _normalize(stripped)
+        candidate_words = _tokenize(candidate_norm)
+        match_index = None
+        for ri, existing in enumerate(result):
+            existing_norm = _normalize(existing)
+            if candidate_norm == existing_norm:
+                match_index = ri
+                break
+            char_sim = _similarity(candidate_norm, existing_norm)
+            word_sim = _word_similarity(candidate_words, _tokenize(existing_norm))
+            combined = max(char_sim, word_sim)
+            if combined >= threshold:
+                match_index = ri
+                break
+        if match_index is None:
+            result.append(stripped)
+        elif len(stripped) > len(result[match_index]):
+            diagnostics.append(
+                f"Replaced near-duplicate communicated idea with more complete variant: "
+                f"{stripped[:100]}"
+            )
+            result[match_index] = stripped
+        else:
+            diagnostics.append(
+                f"Deduplicated communicated idea: {stripped[:100]}"
+            )
+    if len(result) > max_ideas:
+        diagnostics.append(
+            f"Truncated communicated ideas from {len(result)} to limit {max_ideas}"
+        )
+        result = result[:max_ideas]
+    return result
+
+
+def _consolidate_themes(
+    themes: list[str],
+    max_themes: int,
+    diagnostics: list[str],
+) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for theme in themes:
+        stripped = theme.strip()
+        if not stripped:
+            continue
+        key = _normalize(stripped)
+        if key in seen:
+            diagnostics.append(f"Deduplicated theme: {stripped[:80]}")
+            continue
+        seen.add(key)
+        result.append(stripped)
+    if len(result) > max_themes:
+        diagnostics.append(
+            f"Truncated themes from {len(result)} to limit {max_themes}"
+        )
+        result = result[:max_themes]
+    return result

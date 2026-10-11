@@ -56,13 +56,15 @@ def _window_result(observations=None, objects=None):
     )
 
 
-def _ocr_result(texts=None, frame_seqs=None):
+def _ocr_result(texts=None, frame_seqs=None, ideas=None, themes=None):
     return OcrAnalysisResult(
         visible_texts=texts or ["HELLO"],
         text_frame_sequences=frame_seqs or [0],
         attempts=[_attempt("ocr-0")],
         decode_ms=10,
         selected_frames=4,
+        communicated_ideas=ideas or [],
+        themes=themes or [],
     )
 
 
@@ -351,3 +353,115 @@ async def test_failed_validation_attempt_preserved_in_trace(tmp_path):
 
     assert failed_attempt in result.trace.attempts
     assert any("invalid output" in w for w in result.warnings)
+
+
+# --- Grounded content understanding pipeline tests ---
+
+@pytest.mark.asyncio
+async def test_grounded_content_uses_existing_ocr_inference(tmp_path):
+    media = tmp_path / "video.mp4"
+    ocr = _ocr_result(
+        ideas=["On-screen text presents motivation."],
+        themes=["motivation"],
+    )
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=ocr)):
+        result = await run_visual_pipeline(object(), media, 12_000, Settings())
+
+    assert result.consolidated.communicated_ideas == ["On-screen text presents motivation."]
+    assert result.consolidated.themes == ["motivation"]
+    assert result.metrics.ocrPass.inferenceCount == 1
+
+
+@pytest.mark.asyncio
+async def test_enabling_feature_does_not_add_extra_inference(tmp_path):
+    media = tmp_path / "video.mp4"
+    ocr = _ocr_result(ideas=["idea"], themes=["theme"])
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=ocr)):
+        result = await run_visual_pipeline(
+            object(), media, 12_000, Settings(grounded_text_understanding_enabled=True),
+        )
+
+    total_inferences = (
+        result.metrics.globalOverviewPass.inferenceCount
+        + result.metrics.semanticPass.inferenceCount
+        + result.metrics.ocrPass.inferenceCount
+    )
+    assert total_inferences == 3
+
+
+@pytest.mark.asyncio
+async def test_disabling_feature_preserves_ocr_behavior(tmp_path):
+    media = tmp_path / "video.mp4"
+    ocr = _ocr_result(texts=["VISIBLE TEXT"])
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=ocr)):
+        result = await run_visual_pipeline(
+            object(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=False),
+        )
+
+    assert result.consolidated.visible_texts == ["VISIBLE TEXT"]
+    assert result.consolidated.communicated_ideas == []
+    assert result.consolidated.themes == []
+
+
+@pytest.mark.asyncio
+async def test_semantic_and_ocr_passes_remain_sequential(tmp_path):
+    media = tmp_path / "video.mp4"
+    order: list[str] = []
+
+    async def track_overview(*args, **kwargs):
+        order.append("overview")
+        return _global_result()
+
+    async def track_window(*args, **kwargs):
+        order.append("semantic")
+        return _window_result()
+
+    async def track_ocr(*args, **kwargs):
+        order.append("ocr")
+        return _ocr_result()
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", track_overview), \
+         patch("visual_service.model.pipeline.analyze_window", track_window), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", track_ocr):
+        await run_visual_pipeline(object(), media, 12_000, Settings())
+
+    assert order.index("overview") < order.index("semantic")
+    assert order.index("semantic") < order.index("ocr")
+
+
+@pytest.mark.asyncio
+async def test_long_video_segmentation_still_works(tmp_path):
+    media = tmp_path / "video.mp4"
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=_ocr_result())):
+        config = Settings(semantic_window_duration_ms=12_000)
+        result = await run_visual_pipeline(object(), media, 65_000, config)
+
+    assert result.metrics.windowAccounting.plannedWindows >= 6
+
+
+@pytest.mark.asyncio
+async def test_config_values_propagate_into_runtime(tmp_path):
+    media = tmp_path / "video.mp4"
+    ocr = _ocr_result(ideas=["idea1", "idea2", "idea3"], themes=["t1", "t2", "t3", "t4"])
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=ocr)):
+        config = Settings(max_final_communicated_ideas=2, max_final_themes=2)
+        result = await run_visual_pipeline(object(), media, 12_000, config)
+
+    assert len(result.consolidated.communicated_ideas) <= 2
+    assert len(result.consolidated.themes) <= 2

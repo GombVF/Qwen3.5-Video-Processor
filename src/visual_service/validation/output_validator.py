@@ -73,6 +73,13 @@ class OcrBatchOutput(BaseModel):
     images: list[OcrImageOutput]
 
 
+class OcrContentBatchOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    images: list[OcrImageOutput]
+    communicatedIdeas: list = Field(default_factory=list)
+    themes: list = Field(default_factory=list)
+
+
 @dataclass
 class SalvageResult:
     data: dict[str, Any]
@@ -273,6 +280,112 @@ def validate_ocr_batch(
         )
         warnings.extend(text_warnings)
     return ValidationResult(output=output, warnings=warnings)
+
+
+def _validate_string_list_independently(
+    values: list,
+    limit: int,
+    field_name: str,
+) -> tuple[list[str], list[str]]:
+    warnings: list[str] = []
+    valid: list[str] = []
+    for idx, item in enumerate(values):
+        if not isinstance(item, str):
+            warnings.append(f"Rejected non-string {field_name}[{idx}]: {type(item).__name__}")
+            continue
+        stripped = item.strip()
+        if not stripped:
+            continue
+        valid.append(stripped)
+    deduped, dedup_warnings = _deduplicate_strings(valid, limit, field_name)
+    warnings.extend(dedup_warnings)
+    return deduped, warnings
+
+
+def _normalize_ocr_content_shape(
+    value: Any,
+    image_count: int,
+) -> tuple[dict[str, Any], list[str]]:
+    warnings: list[str] = []
+    if isinstance(value, dict) and "images" in value:
+        return value, warnings
+    base, base_warnings = _normalize_ocr_shape(value, image_count)
+    warnings.extend(base_warnings)
+    return base, warnings
+
+
+def validate_ocr_content_batch(
+    raw_text: str,
+    *,
+    image_count: int,
+    max_texts_per_image: int,
+    max_communicated_ideas: int,
+    max_themes: int,
+) -> ValidationResult:
+    value, warnings = _parse_json_value(raw_text)
+    data, shape_warnings = _normalize_ocr_content_shape(value, image_count)
+    warnings.extend(shape_warnings)
+    _reject_temporal_fields(data)
+
+    ideas_raw = data.pop("communicatedIdeas", [])
+    themes_raw = data.pop("themes", [])
+    unknown_extra = set(data.keys()) - {"images"}
+    for key in sorted(unknown_extra):
+        warnings.append(f"Unknown field in OCR content output: {key!r}")
+        data.pop(key)
+
+    try:
+        ocr_output = OcrBatchOutput.model_validate(data)
+    except ValidationError as exc:
+        raise ModelOutputInvalid(f"OCR content schema invalid: {exc}") from exc
+    if len(ocr_output.images) != image_count:
+        raise ModelOutputInvalid(
+            f"OCR returned {len(ocr_output.images)} image entries; expected {image_count}"
+        )
+    is_partial = False
+    for expected_index, image in enumerate(ocr_output.images):
+        if image.imageIndex != expected_index:
+            raise ModelOutputInvalid(
+                f"OCR imageIndex {image.imageIndex} does not match position {expected_index}"
+            )
+        image.visibleTexts, text_warnings = _deduplicate_strings(
+            image.visibleTexts,
+            max_texts_per_image,
+            f"images[{expected_index}].visibleTexts",
+        )
+        warnings.extend(text_warnings)
+
+    if not isinstance(ideas_raw, list):
+        warnings.append("communicatedIdeas is not a list; using empty")
+        ideas_raw = []
+        is_partial = True
+    if not isinstance(themes_raw, list):
+        warnings.append("themes is not a list; using empty")
+        themes_raw = []
+        is_partial = True
+
+    ideas, idea_warnings = _validate_string_list_independently(
+        ideas_raw, max_communicated_ideas, "communicatedIdeas",
+    )
+    warnings.extend(idea_warnings)
+    is_partial = is_partial or len(ideas) < len([
+        i for i in ideas_raw if isinstance(i, str) and i.strip()
+    ])
+
+    themes, theme_warnings = _validate_string_list_independently(
+        themes_raw, max_themes, "themes",
+    )
+    warnings.extend(theme_warnings)
+    is_partial = is_partial or len(themes) < len([
+        t for t in themes_raw if isinstance(t, str) and t.strip()
+    ])
+
+    content_output = OcrContentBatchOutput(
+        images=ocr_output.images,
+        communicatedIdeas=ideas,
+        themes=themes,
+    )
+    return ValidationResult(output=content_output, warnings=warnings, is_partial=is_partial)
 
 
 def salvage_truncated_output(raw_text: str) -> SalvageResult | None:

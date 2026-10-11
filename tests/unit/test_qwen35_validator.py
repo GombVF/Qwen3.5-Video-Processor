@@ -8,6 +8,7 @@ from visual_service.validation.output_validator import (
     validate_global_overview,
     validate_observations,
     validate_ocr_batch,
+    validate_ocr_content_batch,
 )
 
 
@@ -228,3 +229,191 @@ def test_all_valid_observations_not_partial():
     result = validate_observations(raw, max_observations=8, max_objects=12)
     assert result.is_partial is False
     assert len(result.output.observations) == 2
+
+
+# --- Grounded content validation tests ---
+
+def _content_kwargs():
+    return dict(image_count=2, max_texts_per_image=12, max_communicated_ideas=4, max_themes=6)
+
+
+def test_ocr_content_batch_validates_all_fields():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": ["HELLO"]},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": ["On-screen text says hello."],
+        "themes": ["greeting"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.images[0].visibleTexts == ["HELLO"]
+    assert result.output.communicatedIdeas == ["On-screen text says hello."]
+    assert result.output.themes == ["greeting"]
+
+
+def test_valid_visible_text_survives_invalid_communicated_idea():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": ["HELLO"]},
+            {"imageIndex": 1, "visibleTexts": ["WORLD"]},
+        ],
+        "communicatedIdeas": ["Valid idea.", 42, None],
+        "themes": ["valid-theme"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.images[0].visibleTexts == ["HELLO"]
+    assert result.output.images[1].visibleTexts == ["WORLD"]
+    assert result.output.communicatedIdeas == ["Valid idea."]
+    assert any("non-string" in w.lower() for w in result.warnings)
+
+
+def test_valid_communicated_ideas_survive_invalid_theme():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": ["Good idea."],
+        "themes": [123, "valid-theme"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.communicatedIdeas == ["Good idea."]
+    assert result.output.themes == ["valid-theme"]
+
+
+def test_non_string_ideas_rejected_individually():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [42, "Valid."],
+        "themes": [],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.communicatedIdeas == ["Valid."]
+    assert any("non-string" in w.lower() for w in result.warnings)
+
+
+def test_non_string_themes_rejected_individually():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [],
+        "themes": [True, "motivation"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.themes == ["motivation"]
+
+
+def test_exact_duplicate_ideas_removed():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": ["Same idea.", "Same idea."],
+        "themes": [],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.communicatedIdeas == ["Same idea."]
+
+
+def test_exact_duplicate_themes_removed():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [],
+        "themes": ["motivation", "Motivation"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.themes == ["motivation"]
+
+
+def test_idea_list_limits_enforced():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [f"Idea {i}." for i in range(10)],
+        "themes": [],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert len(result.output.communicatedIdeas) == 4
+
+
+def test_theme_list_limits_enforced():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [],
+        "themes": [f"theme-{i}" for i in range(10)],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert len(result.output.themes) == 6
+
+
+def test_salvage_never_manufactures_idea():
+    raw = '{"images":[{"imageIndex":0,"visibleTexts":["OK"]}],"communicatedIdeas":["done"],"themes":["x","y'
+    salvage = salvage_truncated_output(raw)
+    assert salvage is not None
+    serialized = json.dumps(salvage.data)
+    assert "done" in serialized
+
+
+def test_salvage_never_manufactures_theme():
+    raw = '{"images":[{"imageIndex":0,"visibleTexts":[]}],"communicatedIdeas":[],"themes":["abc'
+    salvage = salvage_truncated_output(raw)
+    assert salvage is not None
+    data = salvage.data
+    themes = data.get("themes", [])
+    assert all(isinstance(t, str) for t in themes)
+    assert "abc" not in json.dumps(themes)
+
+
+def test_unknown_fields_follow_validation_policy():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": [],
+        "themes": [],
+        "extraField": "should warn",
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert any("Unknown field" in w for w in result.warnings)
+
+
+def test_missing_ideas_becomes_empty_array():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": ["text"]},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "themes": [],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.communicatedIdeas == []
+    assert result.output.images[0].visibleTexts == ["text"]
+
+
+def test_missing_themes_becomes_empty_array():
+    raw = json.dumps({
+        "images": [
+            {"imageIndex": 0, "visibleTexts": []},
+            {"imageIndex": 1, "visibleTexts": []},
+        ],
+        "communicatedIdeas": ["idea"],
+    })
+    result = validate_ocr_content_batch(raw, **_content_kwargs())
+    assert result.output.themes == []
+    assert result.output.communicatedIdeas == ["idea"]

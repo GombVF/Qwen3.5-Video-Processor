@@ -87,6 +87,8 @@ async def analyze_video(body: VideoAnalyzeRequest, request: Request) -> VisualAn
             summary=content.summary,
             observations=[ObservationResponse(**item) for item in content.observations],
             visibleTexts=content.visible_texts,
+            communicatedIdeas=content.communicated_ideas,
+            themes=content.themes,
             objects=content.objects,
             topics=content.topics,
         ),
