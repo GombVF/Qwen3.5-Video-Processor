@@ -1,0 +1,357 @@
+
+[OK] Detected Ubuntu 24.04; using python3.12 (cp312).
+
+[INFO] Qwen 3.5-4B WSL2 setup
+Project root: /mnt/e/Trabajo/Proyectos/Python/Qwen3.5
+Virtual env:  /home/ville/.venvs/Qwen3.5/.venv-wsl
+
+[OK] WSL GPU device /dev/dxg is available.
+
+[OK] Python 3.12.3 and python3.12-venv are available.
+
+[OK] libgomp1 is available.
+
+[OK] ROCm WSL user-space libraries are available.
+
+[OK] rocminfo sees GPU agent gfx1201.
+
+[OK] Reusing existing virtual environment at /home/ville/.venvs/Qwen3.5/.venv-wsl.
+
+[INFO] Upgrading pip, setuptools, and wheel. Download progress is intentionally visible.
+Requirement already satisfied: pip in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (26.2.1)
+Requirement already satisfied: setuptools in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (84.0.0)
+Requirement already satisfied: wheel in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (0.48.0)
+Requirement already satisfied: packaging>=24.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from wheel) (26.3)
+
+[OK] The pinned PyTorch/ROCm/Triton stack is already installed.
+
+[OK] Pinned PyTorch, torchvision, torchaudio, and AMD Triton versions match.
+
+[INFO] Verifying PyTorch GPU access.
+PyTorch:      2.9.1+rocm7.2.1.gitff65f5bc
+HIP runtime:  7.2.53211-e1a6bc5663
+GPU visible:  True
+GPU:          AMD Radeon RX 9070 XT
+BF16:         True
+
+[INFO] Installing flash-linear-attention 0.5.2 with its ROCm dependencies.
+Collecting flash-linear-attention==0.5.2 (from flash-linear-attention[rocm]==0.5.2)
+  Downloading flash_linear_attention-0.5.2-py3-none-any.whl.metadata (45 kB)
+Collecting fla-core==0.5.2 (from flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading fla_core-0.5.2-py3-none-any.whl.metadata (45 kB)
+Collecting transformers>=4.45.0 (from flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading transformers-5.19.0-py3-none-any.whl.metadata (32 kB)
+Collecting einops (from fla-core==0.5.2->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading einops-0.8.2-py3-none-any.whl.metadata (13 kB)
+Requirement already satisfied: torch>=2.7.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (2.9.1+rocm7.2.1.lw.gitff65f5bc)
+Requirement already satisfied: filelock in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (4.1.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (4.16.0)
+Requirement already satisfied: setuptools in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (84.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (3.7)
+Requirement already satisfied: jinja2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (2026.9.0)
+Requirement already satisfied: triton==3.5.1+rocm7.2.1.gita272dfa8 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (3.5.1+rocm7.2.1.gita272dfa8)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (1.3.0)
+Collecting huggingface-hub<3.0,>=1.31.0 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading huggingface_hub-2.2.0-py3-none-any.whl.metadata (16 kB)
+Requirement already satisfied: numpy>=1.17 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2) (2.5.3)
+Requirement already satisfied: packaging>=20.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2) (26.3)
+Collecting pyyaml>=5.1 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting regex>=2025.10.22 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+Collecting tokenizers<0.24.0,>=0.23.1 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.8 kB)
+Collecting typer (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading typer-0.27.3-py3-none-any.whl.metadata (16 kB)
+Collecting safetensors>=0.8.0 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.2 kB)
+Collecting tqdm>=4.60 (from transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+Collecting click<9.0.0,>=8.4.2 (from huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting hf-xet<2.0.0,>=1.6.0 (from huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (4.9 kB)
+Collecting httpx2<3,>=2.0.0 (from huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading httpx2-2.13.1-py3-none-any.whl.metadata (9.8 kB)
+Collecting anyio>=4.10 (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+Collecting httpcore2==2.13.1 (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading httpcore2-2.13.1-py3-none-any.whl.metadata (26 kB)
+Collecting idna>=3.18 (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting truststore>=0.10 (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading truststore-0.10.4-py3-none-any.whl.metadata (4.4 kB)
+Collecting h11>=0.16 (from httpcore2==2.13.1->httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from jinja2->torch>=2.7.0->fla-core[rocm]==0.5.2; extra == "rocm"->flash-linear-attention[rocm]==0.5.2) (3.0.4)
+Collecting shellingham>=1.3.0 (from typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+Collecting rich>=13.8.0 (from typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting annotated-doc>=0.0.2 (from typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+Collecting markdown-it-py>=2.2.0 (from rich>=13.8.0->typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting pygments<3.0.0,>=2.13.0 (from rich>=13.8.0->typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers>=4.45.0->flash-linear-attention==0.5.2->flash-linear-attention[rocm]==0.5.2)
+  Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Downloading flash_linear_attention-0.5.2-py3-none-any.whl (399 kB)
+Downloading fla_core-0.5.2-py3-none-any.whl (819 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 819.2/819.2 kB 20.7 MB/s  0:00:00
+Downloading transformers-5.19.0-py3-none-any.whl (12.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.6/12.6 MB 59.0 MB/s  0:00:00
+Downloading huggingface_hub-2.2.0-py3-none-any.whl (839 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 839.9/839.9 kB 109.3 MB/s  0:00:00
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Downloading hf_xet-1.7.0-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.2/4.2 MB 116.4 MB/s  0:00:00
+Downloading httpx2-2.13.1-py3-none-any.whl (95 kB)
+Downloading httpcore2-2.13.1-py3-none-any.whl (83 kB)
+Downloading tokenizers-0.23.3-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.4/3.4 MB 116.3 MB/s  0:00:00
+Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 117.9 MB/s  0:00:00
+Downloading regex-2026.9.29-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.8/807.8 kB 116.8 MB/s  0:00:00
+Downloading safetensors-0.8.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (516 kB)
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+Downloading truststore-0.10.4-py3-none-any.whl (18 kB)
+Downloading einops-0.8.2-py3-none-any.whl (65 kB)
+Downloading typer-0.27.3-py3-none-any.whl (123 kB)
+Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Downloading rich-15.0.0-py3-none-any.whl (310 kB)
+Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 121.0 MB/s  0:00:00
+Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+Installing collected packages: truststore, tqdm, shellingham, safetensors, regex, pyyaml, pygments, mdurl, idna, hf-xet, h11, einops, click, annotated-doc, markdown-it-py, httpcore2, fla-core, anyio, rich, httpx2, typer, huggingface-hub, tokenizers, transformers, flash-linear-attention
+
+Successfully installed annotated-doc-0.0.5 anyio-4.15.1 click-8.5.0 einops-0.8.2 fla-core-0.5.2 flash-linear-attention-0.5.2 h11-0.16.0 hf-xet-1.7.0 httpcore2-2.13.1 httpx2-2.13.1 huggingface-hub-2.2.0 idna-3.20 markdown-it-py-4.2.0 mdurl-0.1.2 pygments-2.21.0 pyyaml-6.0.3 regex-2026.9.29 rich-15.0.0 safetensors-0.8.0 shellingham-1.5.4 tokenizers-0.23.3 tqdm-4.70.1 transformers-5.19.0 truststore-0.10.4 typer-0.27.3
+FLA gated-delta operator import: OK
+
+[INFO] Installing the project and development dependencies.
+Obtaining file:///mnt/e/Trabajo/Proyectos/Python/Qwen3.5
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Collecting fastapi<1,>=0.115 (from qwen35-visual-service==1.0.0)
+  Downloading fastapi-0.143.0-py3-none-any.whl.metadata (26 kB)
+Collecting uvicorn<1,>=0.30 (from uvicorn[standard]<1,>=0.30->qwen35-visual-service==1.0.0)
+  Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting pydantic<3,>=2.9 (from qwen35-visual-service==1.0.0)
+  Downloading pydantic-2.14.0-py3-none-any.whl.metadata (131 kB)
+Collecting pydantic-settings<3,>=2.5 (from qwen35-visual-service==1.0.0)
+  Downloading pydantic_settings-2.15.0-py3-none-any.whl.metadata (3.9 kB)
+Requirement already satisfied: transformers<6,>=5.11 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from qwen35-visual-service==1.0.0) (5.19.0)
+Collecting accelerate<2,>=1.15 (from qwen35-visual-service==1.0.0)
+  Downloading accelerate-1.15.0-py3-none-any.whl.metadata (19 kB)
+Collecting qwen-vl-utils<0.1,>=0.0.14 (from qwen35-visual-service==1.0.0)
+  Downloading qwen_vl_utils-0.0.14-py3-none-any.whl.metadata (9.0 kB)
+Collecting av<20,>=18 (from qwen35-visual-service==1.0.0)
+  Downloading av-19.0.1-cp312-abi3-manylinux_2_28_x86_64.whl.metadata (5.0 kB)
+Requirement already satisfied: pillow<13,>=11 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from qwen35-visual-service==1.0.0) (12.3.0)
+Collecting pytest<10,>=8 (from qwen35-visual-service==1.0.0)
+  Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting pytest-asyncio<2,>=0.24 (from qwen35-visual-service==1.0.0)
+  Downloading pytest_asyncio-1.4.0-py3-none-any.whl.metadata (4.1 kB)
+Collecting httpx<1,>=0.27 (from qwen35-visual-service==1.0.0)
+  Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: numpy>=1.17 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2.5.3)
+Requirement already satisfied: packaging>=20.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (26.3)
+Collecting psutil (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0)
+  Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl.metadata (22 kB)
+Requirement already satisfied: pyyaml in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (6.0.3)
+Requirement already satisfied: torch>=2.0.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2.9.1+rocm7.2.1.lw.gitff65f5bc)
+Requirement already satisfied: huggingface_hub>=0.21.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2.2.0)
+Requirement already satisfied: safetensors>=0.4.3 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (0.8.0)
+Collecting starlette>=0.46.0 (from fastapi<1,>=0.115->qwen35-visual-service==1.0.0)
+  Downloading starlette-1.7.0-py3-none-any.whl.metadata (6.6 kB)
+Requirement already satisfied: typing-extensions>=4.8.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from fastapi<1,>=0.115->qwen35-visual-service==1.0.0) (4.16.0)
+Collecting typing-inspection>=0.4.2 (from fastapi<1,>=0.115->qwen35-visual-service==1.0.0)
+  Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: annotated-doc>=0.0.2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from fastapi<1,>=0.115->qwen35-visual-service==1.0.0) (0.0.5)
+Collecting opentelemetry-api>=1.44.0 (from fastapi<1,>=0.115->qwen35-visual-service==1.0.0)
+  Downloading opentelemetry_api-1.45.1-py3-none-any.whl.metadata (1.4 kB)
+Requirement already satisfied: anyio in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx<1,>=0.27->qwen35-visual-service==1.0.0) (4.15.1)
+Collecting certifi (from httpx<1,>=0.27->qwen35-visual-service==1.0.0)
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Collecting httpcore==1.* (from httpx<1,>=0.27->qwen35-visual-service==1.0.0)
+  Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+Requirement already satisfied: idna in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx<1,>=0.27->qwen35-visual-service==1.0.0) (3.20)
+Requirement already satisfied: h11>=0.16 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpcore==1.*->httpx<1,>=0.27->qwen35-visual-service==1.0.0) (0.16.0)
+Collecting annotated-types>=0.6.0 (from pydantic<3,>=2.9->qwen35-visual-service==1.0.0)
+  Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+Collecting pydantic-core==2.50.0 (from pydantic<3,>=2.9->qwen35-visual-service==1.0.0)
+  Downloading pydantic_core-2.50.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+Collecting python-dotenv>=0.21.0 (from pydantic-settings<3,>=2.5->qwen35-visual-service==1.0.0)
+  Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+Collecting iniconfig>=1.0.1 (from pytest<10,>=8->qwen35-visual-service==1.0.0)
+  Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+Collecting pluggy<2,>=1.5 (from pytest<10,>=8->qwen35-visual-service==1.0.0)
+  Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Requirement already satisfied: pygments>=2.7.2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from pytest<10,>=8->qwen35-visual-service==1.0.0) (2.21.0)
+Collecting requests (from qwen-vl-utils<0.1,>=0.0.14->qwen35-visual-service==1.0.0)
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Requirement already satisfied: regex>=2025.10.22 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers<6,>=5.11->qwen35-visual-service==1.0.0) (2026.9.29)
+Requirement already satisfied: tokenizers<0.24.0,>=0.23.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers<6,>=5.11->qwen35-visual-service==1.0.0) (0.23.3)
+Requirement already satisfied: typer in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers<6,>=5.11->qwen35-visual-service==1.0.0) (0.27.3)
+Requirement already satisfied: tqdm>=4.60 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers<6,>=5.11->qwen35-visual-service==1.0.0) (4.70.1)
+Requirement already satisfied: click<9.0.0,>=8.4.2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (8.5.0)
+Requirement already satisfied: filelock>=3.10.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (4.1.0)
+Requirement already satisfied: fsspec>=2023.5.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2026.9.0)
+Requirement already satisfied: hf-xet<2.0.0,>=1.6.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (1.7.0)
+Requirement already satisfied: httpx2<3,>=2.0.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2.13.1)
+Requirement already satisfied: httpcore2==2.13.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (2.13.1)
+Requirement already satisfied: truststore>=0.10 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface_hub>=0.21.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (0.10.4)
+Collecting httptools>=0.8.0 (from uvicorn[standard]<1,>=0.30->qwen35-visual-service==1.0.0)
+  Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+Collecting uvloop>=0.15.1 (from uvicorn[standard]<1,>=0.30->qwen35-visual-service==1.0.0)
+  Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+Collecting watchfiles>=0.20 (from uvicorn[standard]<1,>=0.30->qwen35-visual-service==1.0.0)
+  Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+Collecting websockets>=13.0 (from uvicorn[standard]<1,>=0.30->qwen35-visual-service==1.0.0)
+  Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+Requirement already satisfied: setuptools in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (84.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (3.7)
+Requirement already satisfied: jinja2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (3.1.6)
+Requirement already satisfied: triton==3.5.1+rocm7.2.1.gita272dfa8 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (3.5.1+rocm7.2.1.gita272dfa8)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from jinja2->torch>=2.0.0->accelerate<2,>=1.15->qwen35-visual-service==1.0.0) (3.0.4)
+Collecting charset_normalizer<4,>=2 (from requests->qwen-vl-utils<0.1,>=0.0.14->qwen35-visual-service==1.0.0)
+  Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+Collecting urllib3<3,>=1.26 (from requests->qwen-vl-utils<0.1,>=0.0.14->qwen35-visual-service==1.0.0)
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Requirement already satisfied: shellingham>=1.3.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from typer->transformers<6,>=5.11->qwen35-visual-service==1.0.0) (1.5.4)
+Requirement already satisfied: rich>=13.8.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from typer->transformers<6,>=5.11->qwen35-visual-service==1.0.0) (15.0.0)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from rich>=13.8.0->typer->transformers<6,>=5.11->qwen35-visual-service==1.0.0) (4.2.0)
+Requirement already satisfied: mdurl~=0.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers<6,>=5.11->qwen35-visual-service==1.0.0) (0.1.2)
+Downloading accelerate-1.15.0-py3-none-any.whl (394 kB)
+Downloading av-19.0.1-cp312-abi3-manylinux_2_28_x86_64.whl (35.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.0/35.0 MB 101.3 MB/s  0:00:00
+Downloading fastapi-0.143.0-py3-none-any.whl (144 kB)
+Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+Downloading pydantic-2.14.0-py3-none-any.whl (487 kB)
+Downloading pydantic_core-2.50.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 76.8 MB/s  0:00:00
+Downloading pydantic_settings-2.15.0-py3-none-any.whl (69 kB)
+Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+Downloading pytest_asyncio-1.4.0-py3-none-any.whl (16 kB)
+Downloading qwen_vl_utils-0.0.14-py3-none-any.whl (8.1 kB)
+Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 30.3 MB/s  0:00:00
+Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+Downloading starlette-1.7.0-py3-none-any.whl (78 kB)
+Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 91.3 MB/s  0:00:00
+Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+Downloading websockets-17.2-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (155 kB)
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Building wheels for collected packages: qwen35-visual-service
+  Building editable for qwen35-visual-service (pyproject.toml): started
+  Building editable for qwen35-visual-service (pyproject.toml): finished with status 'done'
+  Created wheel for qwen35-visual-service: filename=qwen35_visual_service-1.0.0-0.editable-py3-none-any.whl size=1600 sha256=e22c404b7dc6f0c80ec1aff57c5092408fd347cd0dfd53da76916bdc2c8ddccd
+  Stored in directory: /tmp/pip-ephem-wheel-cache-3opakp9z/wheels/6d/21/00/90e83582c3523d4f880f78427ebce4bf96dad391aa9e0e7deb
+Successfully built qwen35-visual-service
+Installing collected packages: websockets, uvloop, uvicorn, urllib3, typing-inspection, python-dotenv, pydantic-core, psutil, pluggy, opentelemetry-api, iniconfig, httptools, charset_normalizer, certifi, av, annotated-types, watchfiles, starlette, requests, pytest, pydantic, httpcore, qwen-vl-utils, pytest-asyncio, pydantic-settings, httpx, fastapi, accelerate, qwen35-visual-service
+
+Successfully installed accelerate-1.15.0 annotated-types-0.8.0 av-19.0.1 certifi-2026.7.22 charset_normalizer-3.5.2 fastapi-0.143.0 httpcore-1.0.9 httptools-0.9.0 httpx-0.28.1 iniconfig-2.3.1 opentelemetry-api-1.45.1 pluggy-1.6.0 psutil-7.2.2 pydantic-2.14.0 pydantic-core-2.50.0 pydantic-settings-2.15.0 pytest-9.1.1 pytest-asyncio-1.4.0 python-dotenv-1.2.4 qwen-vl-utils-0.0.14 qwen35-visual-service-1.0.0 requests-2.34.2 starlette-1.7.0 typing-inspection-0.4.4 urllib3-2.8.0 uvicorn-0.54.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.2
+
+[INFO] Installing the configured Transformers build: git+https://github.com/huggingface/transformers.git@main
+Collecting git+https://github.com/huggingface/transformers.git@main
+  Cloning https://github.com/huggingface/transformers.git (to revision main) to /tmp/pip-req-build-ugdyvfx4
+  Running command git clone --filter=blob:none --quiet https://github.com/huggingface/transformers.git /tmp/pip-req-build-ugdyvfx4
+  Resolved https://github.com/huggingface/transformers.git to commit 536ecc007387a50e77603bb5d92100e9b07514cc
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: huggingface-hub<3.0,>=1.31.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (2.2.0)
+Requirement already satisfied: numpy>=1.17 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (2.5.3)
+Requirement already satisfied: packaging>=20.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (26.3)
+Requirement already satisfied: pyyaml>=5.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (6.0.3)
+Requirement already satisfied: regex>=2025.10.22 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (2026.9.29)
+Requirement already satisfied: tokenizers<0.24.0,>=0.23.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (0.23.3)
+Requirement already satisfied: typer in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (0.27.3)
+Requirement already satisfied: safetensors>=0.8.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (0.8.0)
+Requirement already satisfied: tqdm>=4.60 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from transformers==5.19.0.dev0) (4.70.1)
+Requirement already satisfied: click<9.0.0,>=8.4.2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (8.5.0)
+Requirement already satisfied: filelock>=3.10.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (4.1.0)
+Requirement already satisfied: fsspec>=2023.5.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (2026.9.0)
+Requirement already satisfied: hf-xet<2.0.0,>=1.6.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (1.7.0)
+Requirement already satisfied: httpx2<3,>=2.0.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (2.13.1)
+Requirement already satisfied: typing-extensions>=4.1.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (4.16.0)
+Requirement already satisfied: anyio>=4.10 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (4.15.1)
+Requirement already satisfied: httpcore2==2.13.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (2.13.1)
+Requirement already satisfied: idna>=3.18 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (3.20)
+Requirement already satisfied: truststore>=0.10 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (0.10.4)
+Requirement already satisfied: h11>=0.16 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from httpcore2==2.13.1->httpx2<3,>=2.0.0->huggingface-hub<3.0,>=1.31.0->transformers==5.19.0.dev0) (0.16.0)
+Requirement already satisfied: shellingham>=1.3.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from typer->transformers==5.19.0.dev0) (1.5.4)
+Requirement already satisfied: rich>=13.8.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from typer->transformers==5.19.0.dev0) (15.0.0)
+Requirement already satisfied: annotated-doc>=0.0.2 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from typer->transformers==5.19.0.dev0) (0.0.5)
+Requirement already satisfied: markdown-it-py>=2.2.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from rich>=13.8.0->typer->transformers==5.19.0.dev0) (4.2.0)
+Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from rich>=13.8.0->typer->transformers==5.19.0.dev0) (2.21.0)
+Requirement already satisfied: mdurl~=0.1 in /home/ville/.venvs/Qwen3.5/.venv-wsl/lib/python3.12/site-packages (from markdown-it-py>=2.2.0->rich>=13.8.0->typer->transformers==5.19.0.dev0) (0.1.2)
+Building wheels for collected packages: transformers
+  Building wheel for transformers (pyproject.toml): started
+  Building wheel for transformers (pyproject.toml): finished with status 'done'
+  Created wheel for transformers: filename=transformers-5.19.0.dev0-py3-none-any.whl size=13936337 sha256=706edfd5316bc0d0e4950e348d37dbbe7f21c618c1aff67055c65598098a5049
+  Stored in directory: /tmp/pip-ephem-wheel-cache-ohy1mhof/wheels/12/51/df/b62c8ce0479c5de6f7bef121169b3e946949a57481169d3155
+Successfully built transformers
+Installing collected packages: transformers
+  Attempting uninstall: transformers
+    Found existing installation: transformers 5.19.0
+    Uninstalling transformers-5.19.0:
+      Successfully uninstalled transformers-5.19.0
+Successfully installed transformers-5.19.0.dev0
+No broken requirements found.
+
+[INFO] Running final import and accelerator verification.
+PyTorch:       2.9.1+rocm7.2.1.gitff65f5bc
+Transformers:  5.19.0.dev0
+Triton:        3.5.1+rocm7.2.1.gita272dfa8
+HIP runtime:   7.2.53211-e1a6bc5663
+GPU:           AMD Radeon RX 9070 XT
+BF16:          True
+FLA operator:  fla.ops.gated_delta_rule.chunk
+
+[OK] Found /mnt/e/Trabajo/Proyectos/Python/Qwen3.5/.env-wsl.
+
+=== Setup complete ===
+
+Activate and verify:
+  cd /mnt/e/Trabajo/Proyectos/Python/Qwen3.5
+  source /home/ville/.venvs/Qwen3.5/.venv-wsl/bin/activate
+  python -c import\ torch\;\ print\(torch.__version__\,\ torch.version.hip\,\ torch.cuda.is_available\(\)\,\ torch.cuda.get_device_name\(0\)\)
+
+Start the service:
+  set -a; source .env-wsl; set +a
+  python -m uvicorn visual_service.main:app --host 127.0.0.1 --port 8001
+
+Run the benchmark after the service is healthy:
+  python scripts/benchmark_e2e.py

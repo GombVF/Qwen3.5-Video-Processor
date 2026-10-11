@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "qwen35-visual-service"
+version = "1.2.0"
+description = "Local Qwen3.5-4B visual extraction service for social-media videos"
+requires-python = "==3.12.*"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.30,<1",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.5,<3",
+    "transformers>=5.11,<6",
+    "accelerate>=1.15,<2",
+    "qwen-vl-utils>=0.0.14,<0.1",
+    # Known-good version for the explicit PyAV uniform sampler on WSL/ROCm.
+    "av==18.1.0",
+    "pillow>=11,<13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-asyncio>=0.24,<2",
+    "httpx>=0.27,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/visual_service"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+

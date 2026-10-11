@@ -1,0 +1,590 @@
+<title>Qwen 3.5-4B v2 Report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Literata:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #EDECEA;
+    --text: #1C1C1F;
+    --text-secondary: #5A5A63;
+    --accent: #B5432A;
+    --accent-dim: #D4917F;
+    --pass: #2D6A4F;
+    --fail: #B5432A;
+    --skip: #8B7E3D;
+    --border: #D5D3CE;
+    --code-bg: #E8E6E1;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1A1A1E;
+      --surface: #26262B;
+      --text: #E4E3DF;
+      --text-secondary: #9C9BA0;
+      --accent: #E07A5F;
+      --accent-dim: #8B4D3A;
+      --pass: #52B788;
+      --fail: #E07A5F;
+      --skip: #C9B85C;
+      --border: #3A3A40;
+      --code-bg: #2E2E34;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1A1A1E;
+    --surface: #26262B;
+    --text: #E4E3DF;
+    --text-secondary: #9C9BA0;
+    --accent: #E07A5F;
+    --accent-dim: #8B4D3A;
+    --pass: #52B788;
+    --fail: #E07A5F;
+    --skip: #C9B85C;
+    --border: #3A3A40;
+    --code-bg: #2E2E34;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Literata', 'Georgia', serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    padding: 0 24px;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Outfit', system-ui, sans-serif;
+    text-wrap: balance;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 2.5rem 0 0.5rem;
+    color: var(--text);
+  }
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 2.5rem 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 2px solid var(--accent);
+    color: var(--text);
+  }
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--text-secondary);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.82rem;
+  }
+
+  p { margin: 0 0 0.9rem; max-width: 65ch; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+  li { margin-bottom: 0.35rem; }
+  li::marker { color: var(--accent-dim); }
+
+  .subtitle {
+    font-family: 'Outfit', system-ui, sans-serif;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin: 0 0 2rem;
+    font-weight: 400;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .stat {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-value.pass { color: var(--pass); }
+  .stat-value.fail { color: var(--fail); }
+  .stat-value.skip { color: var(--skip); }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: var(--code-bg);
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  pre {
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    margin: 0.75rem 0 1.25rem;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+  }
+
+  .gap-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 3px;
+    vertical-align: middle;
+    margin-right: 6px;
+    letter-spacing: 0.03em;
+  }
+
+  .file-list {
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 0.75rem 0 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    line-height: 1.7;
+  }
+  .file-list .path { color: var(--text); }
+  .file-list .note { color: var(--text-secondary); font-family: 'Literata', serif; font-style: italic; font-size: 0.82rem; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0 1.25rem;
+    font-size: 0.88rem;
+  }
+  th {
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-secondary);
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+
+  .verdict {
+    display: inline-block;
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 0.78rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+  }
+  .verdict.pass { background: color-mix(in srgb, var(--pass) 15%, transparent); color: var(--pass); }
+  .verdict.fail { background: color-mix(in srgb, var(--fail) 15%, transparent); color: var(--fail); }
+  .verdict.skip { background: color-mix(in srgb, var(--skip) 15%, transparent); color: var(--skip); }
+  .verdict.na { background: var(--surface); color: var(--text-secondary); }
+
+  .constraint-row {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .constraint-row:last-child { border-bottom: none; }
+  .constraint-check {
+    color: var(--pass);
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .constraint-text {
+    font-size: 0.88rem;
+  }
+
+  @media (max-width: 500px) {
+    body { padding: 0 16px; }
+    h1 { font-size: 1.4rem; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    pre { font-size: 0.72rem; padding: 10px 12px; }
+  }
+</style>
+
+<h1>Qwen 3.5-4B Visual Analysis Service</h1>
+<p class="subtitle">Benchmark v2 quality and robustness improvements &mdash; 2026-09-26</p>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="stat-label">Gaps closed</div>
+    <div class="stat-value pass">6 / 6</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Tests</div>
+    <div class="stat-value pass">142</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Skipped</div>
+    <div class="stat-value">2</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Prompt</div>
+    <div class="stat-value">v2</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Schema</div>
+    <div class="stat-value">5.0</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">FLA kernels</div>
+    <div class="stat-value skip">N/A</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 1</span> Ambiguous Objects &amp; Unsupported Specificity</h2>
+
+<p>The v1 prompt allowed the model to name specific substances, brands, and exercise variants without visual evidence. The v2 observation prompt adds explicit <strong>Evidence-Grounding Rules</strong> and <strong>Forbidden Inferences</strong> sections that require neutral, evidence-bounded wording.</p>
+
+<h3>What changed</h3>
+<ul>
+  <li>New rule: when identity or material is ambiguous, describe observable shape, color, position, and movement instead of naming a specific substance or object.</li>
+  <li>Forbidden: exact substances ("salt"), brand names, precise exercise variants ("bench press"), emotions, intentions, and audio.</li>
+  <li>Positive examples enforce neutral descriptions: "a white powder" not "salt", "a lower-body exercise with a barbell" not "squats with 100kg".</li>
+  <li>Negative examples show what the model must not produce: inferred emotions, inferred purpose, audio inference, unsupported brand/location.</li>
+  <li>Global overview prompt gets matching grounding rules and the principle "prefer omission over invented completeness."</li>
+</ul>
+
+<h3>Files</h3>
+<div class="file-list">
+  <span class="path">src/visual_service/model/prompt.py</span> <span class="note">&mdash; complete rewrite of observation and global overview prompts</span>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 2</span> Inconsistent Action/Scene/Appearance Classification</h2>
+
+<p>Without explicit definitions, the model would inconsistently classify the same visual event as different types across windows. The v2 prompt adds a strict taxonomy with definitions and classification examples.</p>
+
+<h3>Taxonomy</h3>
+<table>
+  <tr><th>Type</th><th>Definition</th><th>Example</th></tr>
+  <tr>
+    <td><code>action</code></td>
+    <td>Observable movement, manipulation, posture transition, or meaningful visual change</td>
+    <td>"A pigeon walks along a ledge"</td>
+  </tr>
+  <tr>
+    <td><code>scene</code></td>
+    <td>Visible setting, composition, environmental state, or static contextual view</td>
+    <td>"A dark hallway with dim lighting"</td>
+  </tr>
+  <tr>
+    <td><code>appearance</code></td>
+    <td>Stable visible attribute: clothing, accessories, physical features</td>
+    <td>"A person wearing headphones"</td>
+  </tr>
+</table>
+
+<p>Key disambiguation: "putting on headphones" is an <code>action</code> (manipulation), while "wearing headphones" is <code>appearance</code> (stable attribute). Camera panning across a landscape with no subject action is <code>scene</code>.</p>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 3</span> Token-Aware Deduplication</h2>
+
+<p>The Qwen 2.5 v5 baseline's deduplication was stronger than v1's character-only similarity. The consolidator now uses a dual-metric approach with window-distance-aware thresholds.</p>
+
+<h3>Dedup algorithm</h3>
+<ul>
+  <li><strong>Character similarity:</strong> <code>SequenceMatcher.ratio()</code> on NFKC-normalized, casefolded text.</li>
+  <li><strong>Word similarity:</strong> Jaccard index on word token sets. Catches semantically identical sentences that differ by word order.</li>
+  <li><strong>Combined score:</strong> <code>max(char_sim, word_sim)</code>. Either metric alone can trigger deduplication.</li>
+  <li><strong>Adjacent windows only (distance=1):</strong> comparisons use <code>adjacent_threshold=0.78</code>. Same-window pairs (distance=0) are skipped because the model handles intra-window dedup. Non-adjacent pairs (distance&gt;1) are preserved to keep genuinely repeated actions.</li>
+</ul>
+
+<h3>Files</h3>
+<div class="file-list">
+  <span class="path">src/visual_service/model/consolidator.py</span> <span class="note">&mdash; <code>_word_similarity()</code>, <code>_tokenize()</code>, rewritten <code>_consolidate_observations()</code></span>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 4</span> OCR Fragment Removal</h2>
+
+<p>OCR extraction across frame batches produced fragmented text: "SUBSCRIBE" appearing as a separate entry alongside "SUBSCRIBE NOW" from an adjacent frame. The consolidator now removes fragments that are contiguous substrings of longer texts from nearby frames.</p>
+
+<h3>Fragment detection</h3>
+<ul>
+  <li>For each OCR text, check if its normalized form is a contiguous substring of any longer text from a frame within the <code>fragment_neighborhood</code> distance (default: 3 frames).</li>
+  <li>Fragments shorter than 4 characters are kept to avoid false positives on abbreviations.</li>
+  <li>Distant frames (beyond neighborhood) are not compared, preserving genuinely independent text appearances.</li>
+  <li>No reconstruction: fragments are removed, never combined. Text that doesn't exist verbatim in model output is never created.</li>
+</ul>
+
+<h3>Pipeline wiring</h3>
+<p>The OCR pass now tracks <code>text_frame_sequences: list[int]</code> alongside <code>visible_texts</code>. Each text entry carries the global frame sequence number it was extracted from, enabling distance-aware fragment comparison.</p>
+
+<div class="file-list">
+  <span class="path">src/visual_service/model/consolidator.py</span> <span class="note">&mdash; <code>_remove_ocr_fragments()</code></span><br>
+  <span class="path">src/visual_service/model/qwen_analyzer.py</span> <span class="note">&mdash; <code>text_frame_sequences</code> tracking in OCR pass</span>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 5</span> Independent Pass Degradation</h2>
+
+<p>In v1, a failure in the global overview or OCR pass could abort the entire pipeline. Each pass now has independent error boundaries with granular status tracking.</p>
+
+<h3>Degradation behavior</h3>
+<table>
+  <tr><th>Pass</th><th>On failure</th><th>Status</th></tr>
+  <tr><td>Global overview</td><td>Empty summary and topics; semantic windows proceed</td><td><span class="verdict fail">FAILED</span></td></tr>
+  <tr><td>Single window</td><td>Skipped; other windows proceed</td><td><span class="verdict pass">PARTIAL</span></td></tr>
+  <tr><td>All windows</td><td>Pipeline raises <code>RuntimeError</code></td><td>&mdash;</td></tr>
+  <tr><td>OCR</td><td>Empty visible texts; semantic results preserved</td><td><span class="verdict fail">FAILED</span></td></tr>
+</table>
+
+<p>The <code>PassStatus</code> enum (<code>complete</code> / <code>partial</code> / <code>failed</code> / <code>skipped</code>) is reported per pass in the metrics response, giving callers fine-grained degradation information.</p>
+
+<div class="file-list">
+  <span class="path">src/visual_service/model/pipeline.py</span> <span class="note">&mdash; try/except per pass, PassStatus tracking</span><br>
+  <span class="path">src/visual_service/contracts/responses.py</span> <span class="note">&mdash; <code>PassStatus</code> enum, <code>status</code> field on <code>PassMetrics</code></span>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="gap-tag">GAP 6</span> Analysis Mode: Omitting OCR</h2>
+
+<p>The service now supports two analysis modes, selectable per-request or via configuration.</p>
+
+<table>
+  <tr><th>Mode</th><th>Behavior</th><th>OCR status</th></tr>
+  <tr><td><code>SEMANTIC_AND_OCR</code></td><td>Full pipeline: global overview + semantic windows + OCR</td><td><span class="verdict pass">complete</span></td></tr>
+  <tr><td><code>SEMANTIC_ONLY</code></td><td>Global overview + semantic windows. OCR pass skipped entirely.</td><td><span class="verdict skip">skipped</span></td></tr>
+</table>
+
+<h3>Resolution order</h3>
+<ol>
+  <li>Request-level <code>analysisMode</code> field (if present)</li>
+  <li>Configuration-level <code>analysis_mode</code> setting</li>
+  <li>Default: <code>SEMANTIC_AND_OCR</code></li>
+</ol>
+
+<div class="file-list">
+  <span class="path">src/visual_service/settings.py</span> <span class="note">&mdash; <code>AnalysisMode</code> enum, validator</span><br>
+  <span class="path">src/visual_service/contracts/requests.py</span> <span class="note">&mdash; optional <code>analysisMode</code> field</span><br>
+  <span class="path">src/visual_service/model/pipeline.py</span> <span class="note">&mdash; mode-gated OCR execution</span>
+</div>
+
+<!-- ============================================================ -->
+<h2>Performance Track: Kernel Evaluation</h2>
+
+<p>Qwen 3.5 uses a hybrid attention architecture: 24 Gated DeltaNet layers for linear attention and 8 full attention layers. Two optional kernel packages can accelerate these layers.</p>
+
+<h3>Evaluation results</h3>
+<table>
+  <tr><th>Package</th><th>Version</th><th>Installed</th><th>Active</th><th>Verdict</th></tr>
+  <tr>
+    <td><code>flash-linear-attention</code></td>
+    <td>0.5.2</td>
+    <td><span class="verdict pass">Yes</span></td>
+    <td><span class="verdict fail">No</span></td>
+    <td><span class="verdict na">Blocked by triton</span></td>
+  </tr>
+  <tr>
+    <td><code>causal_conv1d</code></td>
+    <td>1.7.0</td>
+    <td><span class="verdict fail">No</span></td>
+    <td><span class="verdict fail">No</span></td>
+    <td><span class="verdict na">CUDA-only</span></td>
+  </tr>
+</table>
+
+<h3>flash-linear-attention</h3>
+<p>The package installs as pure Python (<code>fla-core==0.5.2</code> + <code>einops==0.8.2</code>), but its operator implementations (<code>fla.ops.gated_delta_rule</code>) require <code>triton</code>, which is Linux-only. On Windows, <code>import fla</code> succeeds but <code>from fla.ops.gated_delta_rule import chunk_gated_delta_rule</code> fails with <code>ModuleNotFoundError: No module named 'triton'</code>.</p>
+
+<p>Transformers' dispatch mechanism (<code>use_kernel_func_from_hub_with_fallback</code>) catches this exception and falls back to the built-in PyTorch reference implementation. The fallback is functionally correct but Transformers' own documentation notes the gap is "more than an order of magnitude on an H100."</p>
+
+<h3>causal_conv1d</h3>
+<p>Building <code>causal_conv1d==1.7.0</code> from source fails with <code>NameError: name 'bare_metal_version' is not defined</code>. The package requires CUDA bare-metal headers and is fundamentally incompatible with ROCm.</p>
+
+<h3>Dispatch verification</h3>
+<pre><code># Both functions resolve to the Transformers PyTorch reference path:
+chunk_gated_delta_rule.__module__
+  → "transformers.models.qwen3_5.modeling_qwen3_5"
+causal_conv1d_fn.__module__
+  → "transformers.models.qwen3_5.modeling_qwen3_5"</code></pre>
+
+<h3>Conclusion</h3>
+<p>Neither package provides a performance benefit on Windows 11 / AMD ROCm. The service runs on the PyTorch reference kernels, which are correct but suboptimal. A future Linux deployment with triton support would unlock FLA's optimized kernels for the 24 DeltaNet layers.</p>
+
+<div class="file-list">
+  <span class="path">src/visual_service/model/lifecycle.py</span> <span class="note">&mdash; <code>KernelDiagnostics</code>, <code>_detect_kernel_diagnostics()</code></span><br>
+  <span class="path">src/visual_service/api/health.py</span> <span class="note">&mdash; kernel diagnostics exposed via model info endpoint</span><br>
+  <span class="path">scripts/benchmark_e2e.py</span> <span class="note">&mdash; <code>kernelDiagnostics</code> section in report output</span>
+</div>
+
+<!-- ============================================================ -->
+<h2>Test Coverage</h2>
+
+<p>142 tests pass, 2 skipped (symlink path security tests, not applicable on Windows).</p>
+
+<table>
+  <tr><th>Test file</th><th>Count</th><th>Covers</th></tr>
+  <tr><td><code>test_qwen35_prompt.py</code></td><td>18</td><td>Taxonomy, grounding rules, audio ban, examples, temporal fields</td></tr>
+  <tr><td><code>test_qwen35_consolidator.py</code></td><td>22</td><td>Observation dedup, word similarity, OCR dedup, fragments</td></tr>
+  <tr><td><code>test_qwen35_validator.py</code></td><td>14</td><td>Validation, salvage, type enforcement, temporal rejection</td></tr>
+  <tr><td><code>test_qwen35_settings_planner.py</code></td><td>11</td><td>Settings validation, analysis mode, windowing, fragment config</td></tr>
+  <tr><td><code>test_qwen35_concurrency.py</code></td><td>3</td><td>GPU lock, cancellation, no generative repair</td></tr>
+  <tr><td><code>test_pipeline_gaps.py</code></td><td>10</td><td>Gap 5 degradation, Gap 6 analysis modes</td></tr>
+  <tr><td><code>test_kernel_diagnostics.py</code></td><td>6</td><td>Kernel detection, to_dict, available vs active</td></tr>
+  <tr><td><code>test_qwen35_contract.py</code></td><td>8</td><td>Response schema, no temporal fields, PassStatus, kernel diagnostics</td></tr>
+  <tr><td><code>test_error_handling.py</code></td><td>10</td><td>Error responses, OOM detection</td></tr>
+  <tr><td><code>test_path_security.py</code></td><td>13</td><td>Path traversal, extensions, UNC, symlinks</td></tr>
+  <tr><td><code>test_logging.py</code></td><td>10</td><td>JSON formatter, correlation context</td></tr>
+</table>
+
+<h3>Key test areas from acceptance criteria</h3>
+<div style="columns: 2; column-gap: 24px; font-size: 0.88rem;">
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Evidence-bounded wording enforced</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Taxonomy definitions present</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Classification examples present</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Audio inference forbidden</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Adjacent-only observation dedup</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Word + character similarity</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Non-adjacent actions preserved</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Same-window pairs not compared</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">OCR fragments removed by neighborhood</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No text reconstruction</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Global overview failure non-fatal</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Single window failure non-fatal</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">OCR failure non-fatal</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">All windows fail → raises</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">SEMANTIC_ONLY skips OCR</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Request mode overrides config</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">PassStatus per pass in response</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Kernel diagnostics detected</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No temporal fields in output</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Contract backward-compatible</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Files Changed</h2>
+
+<h3>Modified</h3>
+<div class="file-list">
+  <span class="path">src/visual_service/settings.py</span> <span class="note">&mdash; AnalysisMode enum, fragment_neighborhood, analysis_mode validator</span><br>
+  <span class="path">src/visual_service/model/prompt.py</span> <span class="note">&mdash; v2 observation + global overview prompts</span><br>
+  <span class="path">src/visual_service/model/consolidator.py</span> <span class="note">&mdash; word similarity, fragment removal, adjacent-only dedup</span><br>
+  <span class="path">src/visual_service/model/qwen_analyzer.py</span> <span class="note">&mdash; text_frame_sequences in OcrAnalysisResult</span><br>
+  <span class="path">src/visual_service/model/lifecycle.py</span> <span class="note">&mdash; KernelDiagnostics, detection logic</span><br>
+  <span class="path">src/visual_service/model/pipeline.py</span> <span class="note">&mdash; analysis_mode param, try/except per pass, PassStatus</span><br>
+  <span class="path">src/visual_service/contracts/requests.py</span> <span class="note">&mdash; analysisMode field</span><br>
+  <span class="path">src/visual_service/contracts/responses.py</span> <span class="note">&mdash; PassStatus, KernelDiagnosticsResponse, analysisMode</span><br>
+  <span class="path">src/visual_service/api/visual_analysis.py</span> <span class="note">&mdash; passes analysisMode to pipeline</span><br>
+  <span class="path">src/visual_service/api/health.py</span> <span class="note">&mdash; kernel diagnostics in model info</span><br>
+  <span class="path">scripts/benchmark_e2e.py</span> <span class="note">&mdash; --mode CLI arg, kernelDiagnostics in report</span>
+</div>
+
+<h3>Created</h3>
+<div class="file-list">
+  <span class="path">tests/unit/test_pipeline_gaps.py</span> <span class="note">&mdash; 10 tests for Gap 5 + Gap 6</span><br>
+  <span class="path">tests/unit/test_kernel_diagnostics.py</span> <span class="note">&mdash; 6 tests for kernel detection</span>
+</div>
+
+<h3>Unchanged</h3>
+<div class="file-list" style="color: var(--text-secondary);">
+  decoder.py &middot; planner.py &middot; profiles.py &middot; logging.py &middot; errors.py &middot; main.py &middot;
+  path_security.py &middot; output_validator.py &middot; conftest.py
+</div>
+
+<!-- ============================================================ -->
+<h2>Product Constraints Preserved</h2>
+
+<div style="font-size: 0.9rem;">
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Visual evidence only. No audio inference in prompts or output.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No timestamps, frame numbers, or window boundaries in semantic output.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">One consolidated result per video.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Deterministic, non-generative consolidation. No text-only generative repair.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Structural salvage: deterministic, forward-only, evidence-faithful.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text"><code>do_sample=false</code>, one JSON object per inference, no Markdown.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">GPU inference concurrency exactly 1. <code>threading.Lock</code> protects GPU.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">Cancellation does not release GPU slot while inference thread is active.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No Java, Spring, databases, search, embeddings, containers, quantization, or second model.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No Windows security policy, registry, GPU driver, or system-wide changes.</span></div>
+  <div class="constraint-row"><span class="constraint-check">&#10003;</span><span class="constraint-text">No unrelated refactors.</span></div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Expected Kernel Diagnostics Output</h2>
+
+<p>When the service starts, the model info endpoint will report:</p>
+
+<pre><code>{
+  "kernelDiagnostics": {
+    "flashLinearAttentionAvailable": false,
+    "flashLinearAttentionActive": false,
+    "causalConv1dAvailable": false,
+    "causalConv1dActive": false,
+    "linearAttentionBackend": "reference",
+    "fullAttentionBackend": "sdpa",
+    "fallbackReasons": [
+      "flash-linear-attention installed but ops not usable:
+       No module named 'triton'",
+      "causal_conv1d package not installed"
+    ]
+  }
+}</code></pre>
+
+<!-- ============================================================ -->
+<h2>Benchmark Instructions</h2>
+
+<pre><code># Full pipeline benchmark (both modes)
+.venv\Scripts\python.exe scripts\benchmark_e2e.py
+.venv\Scripts\python.exe scripts\benchmark_e2e.py --mode SEMANTIC_ONLY
+
+# With specific videos
+.venv\Scripts\python.exe scripts\benchmark_e2e.py \
+  --media data\test_videos\12s.mp4 \
+  --media data\test_videos\27s.mp4
+
+# Run test suite
+.venv\Scripts\python.exe -m pytest tests/ -v</code></pre>
+
+<!-- ============================================================ -->
+<h2>Recommendations</h2>
+
+<ul>
+  <li><strong>Run GPU benchmarks</strong> with the three test videos (12s, 27s, 65s) to establish v2 baseline timings. The benchmark script now captures analysis mode and kernel diagnostics in its output.</li>
+  <li><strong>Linux deployment</strong> would unlock FLA kernel acceleration for the 24 DeltaNet layers. The Transformers dispatch is already wired; installing <code>triton</code> + <code>flash-linear-attention</code> on Linux with ROCm should activate the optimized kernels automatically.</li>
+  <li><strong>Evaluate v2 prompt quality</strong> on real video samples to confirm that evidence-bounded wording and the strict taxonomy produce better observations than v1.</li>
+  <li><strong>Uninstall FLA</strong> if desired: <code>pip uninstall flash-linear-attention fla-core einops</code>. It has no effect on correctness or performance in the current Windows/ROCm environment.</li>
+</ul>

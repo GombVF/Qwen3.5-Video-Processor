@@ -1,0 +1,2414 @@
+{
+  "timestamp": "2026-09-22T01:04:17.826886+00:00",
+  "benchmarkMode": "visual",
+  "model": {
+    "id": "E:/Trabajo/Proyectos/Qwen/Qwen2.5-VL-3B-Instruct",
+    "revision": "local",
+    "configuredDtype": "bfloat16",
+    "actualDtypeDistribution": {
+      "torch.bfloat16": 824
+    },
+    "promptVersion": "visual-analysis-v5"
+  },
+  "schemaVersion": "4.0",
+  "profile": "SEMANTIC_V1",
+  "torch": "2.9.1+rocm7.2.1",
+  "transformers": "4.57.6",
+  "toolkit": "0.0.14",
+  "videoBackend": "pyav",
+  "currentVramMb": 7237,
+  "settings": {
+    "twoPassEnabled": true,
+    "semanticWindowDurationMs": 12000,
+    "semanticWindowOverlapMs": 2000,
+    "semanticFps": 2.0,
+    "semanticMaxFrames": 24,
+    "maxObservationsPerWindow": 8,
+    "maxVisibleTexts": 12,
+    "maxObjects": 12,
+    "maxTopics": 8,
+    "consolidationAdjacentThreshold": 0.75,
+    "consolidationNonadjacentThreshold": 0.9,
+    "ocrBatchSize": 1,
+    "globalOverviewMaxTopics": 10
+  },
+  "results": [
+    {
+      "video": "video_12_sec.mp4",
+      "durationMs": 12000,
+      "profile": "SEMANTIC_V1",
+      "promptVersion": "visual-analysis-v5",
+      "schemaVersion": "4.0",
+      "twoPassEnabled": true,
+      "strategy": "FULL_NATIVE",
+      "windowCount": 1,
+      "globalOverview": {
+        "summary": "The video begins with a character in a diving suit standing on rocks underwater, looking around curiously. The scene transitions to a mysterious figure draped in a green hooded cloak, who appears to be communicating with the diver. The dialogue suggests a conversation between the two characters, with the mysterious figure asking questions and the diver responding. The video ends with the mysterious figure still engaged in the conversation.",
+        "topics": [
+          "diving",
+          "underwater exploration",
+          "mysterious figure",
+          "dialogue",
+          "curiosity",
+          "cloaked figure",
+          "submerged environment",
+          "questioning",
+          "communication",
+          "dive suit"
+        ],
+        "topicCount": 10,
+        "generatedTokens": 147,
+        "finishReason": "stop",
+        "inferenceMs": 139887,
+        "decodeMs": 271,
+        "isPartial": false,
+        "selectedFrames": 12,
+        "dimensions": "392x672",
+        "rawOutput": "{\n  \"summary\": \"The video begins with a character in a diving suit standing on rocks underwater, looking around curiously. The scene transitions to a mysterious figure draped in a green hooded cloak, who appears to be communicating with the diver. The dialogue suggests a conversation between the two characters, with the mysterious figure asking questions and the diver responding. The video ends with the mysterious figure still engaged in the conversation.\",\n  \"topics\": [\n    \"diving\",\n    \"underwater exploration\",\n    \"mysterious figure\",\n    \"dialogue\",\n    \"curiosity\",\n    \"cloaked figure\",\n    \"submerged environment\",\n    \"questioning\",\n    \"communication\",\n    \"dive suit\"\n  ]\n}",
+        "warnings": []
+      },
+      "windows": [
+        {
+          "windowIndex": 0,
+          "startMs": 0,
+          "endMs": 12000,
+          "semantic": {
+            "observationCount": 4,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A person wearing a diving suit and helmet is floating underwater."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A person covered in a greenish glow, with their hands pressed together in front of them."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A close-up of a diving helmet with a dark background."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A person with long hair, wearing a greenish cloak, is looking up."
+              }
+            ],
+            "typeCounts": {
+              "scene": 4
+            },
+            "objectCount": 9,
+            "objects": [
+              "diving suit",
+              "helmet",
+              "greenish glow",
+              "cloak",
+              "hands",
+              "dive tank",
+              "underwater environment",
+              "dark background",
+              "long hair"
+            ],
+            "generatedTokens": 220,
+            "finishReason": "stop",
+            "inferenceMs": 8736,
+            "decodeMs": 245,
+            "isPartial": false,
+            "selectedFrames": 24,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A person wearing a diving suit and helmet is floating underwater.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A person covered in a greenish glow, with their hands pressed together in front of them.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A close-up of a diving helmet with a dark background.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A person with long hair, wearing a greenish cloak, is looking up.\"\n    }\n  ],\n  \"objects\": [\n    \"diving suit\",\n    \"helmet\",\n    \"greenish glow\",\n    \"cloak\",\n    \"hands\",\n    \"dive tank\",\n    \"underwater environment\",\n    \"dark background\",\n    \"long hair\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "-WHO ARE YOU?"
+            ],
+            "totalInferenceMs": 42445,
+            "totalGeneratedTokens": 106,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 38527,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [
+                  "-WHO ARE YOU?"
+                ],
+                "generatedTokens": 22,
+                "finishReason": "stop",
+                "inferenceMs": 799,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 524,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 529,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 9,
+                "finishReason": "stop",
+                "inferenceMs": 440,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 513,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 519,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 15,
+                "finishReason": "stop",
+                "inferenceMs": 594,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"-A GOD...\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"-SCYLL-HU...\"\n]\n```"
+            ]
+          }
+        }
+      ],
+      "consolidated": {
+        "summary": "The video begins with a character in a diving suit standing on rocks underwater, looking around curiously. The scene transitions to a mysterious figure draped in a green hooded cloak, who appears to be communicating with the diver. The dialogue suggests a conversation between the two characters, with the mysterious figure asking questions and the diver responding. The video ends with the mysterious figure still engaged in the conversation.",
+        "observations": [
+          {
+            "order": 1,
+            "type": "scene",
+            "description": "A person wearing a diving suit and helmet is floating underwater."
+          },
+          {
+            "order": 2,
+            "type": "scene",
+            "description": "A person covered in a greenish glow, with their hands pressed together in front of them."
+          },
+          {
+            "order": 3,
+            "type": "scene",
+            "description": "A close-up of a diving helmet with a dark background."
+          },
+          {
+            "order": 4,
+            "type": "scene",
+            "description": "A person with long hair, wearing a greenish cloak, is looking up."
+          }
+        ],
+        "observationCount": 4,
+        "visibleTexts": [
+          "-WHO ARE YOU?"
+        ],
+        "visibleTextCount": 1,
+        "objects": [
+          "diving suit",
+          "helmet",
+          "greenish glow",
+          "cloak",
+          "hands",
+          "dive tank",
+          "underwater environment",
+          "dark background",
+          "long hair"
+        ],
+        "objectCount": 9,
+        "topics": [
+          "diving",
+          "underwater exploration",
+          "mysterious figure",
+          "dialogue",
+          "curiosity",
+          "cloaked figure",
+          "submerged environment",
+          "questioning",
+          "communication",
+          "dive suit"
+        ],
+        "topicCount": 10
+      },
+      "consolidationDiagnostics": [],
+      "metrics": {
+        "totalMs": 192102,
+        "peakVramBytes": 7711971328,
+        "globalOverviewPass": {
+          "inferenceMs": 139887,
+          "generatedTokens": 147,
+          "isPartial": false
+        },
+        "semanticPass": {
+          "totalInferenceMs": 8736,
+          "totalTokens": 220,
+          "isPartial": false
+        },
+        "ocrPass": {
+          "totalInferenceMs": 42445,
+          "totalTokens": 106,
+          "isPartial": true
+        }
+      },
+      "validationWarnings": [
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"-A GOD...\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"-SCYLL-HU...\"\n]\n```"
+      ]
+    },
+    {
+      "video": "video_27_sec.mp4",
+      "durationMs": 27666,
+      "profile": "SEMANTIC_V1",
+      "promptVersion": "visual-analysis-v5",
+      "schemaVersion": "4.0",
+      "twoPassEnabled": true,
+      "strategy": "CHUNKED_NATIVE",
+      "windowCount": 3,
+      "globalOverview": {
+        "summary": "The video shows a person running at night, wearing earphones and a necklace. The person appears to be listening to realistic running footsteps to improve their speed. At one point, wind chimes start making noise in the woods beside them, adding an unexpected element to the scene.",
+        "topics": [
+          "nighttime running",
+          "realistic running footsteps",
+          "earphones",
+          "wind chimes",
+          "unexpected sound",
+          "necklace",
+          "dark environment",
+          "running activity",
+          "personal improvement",
+          "random events"
+        ],
+        "topicCount": 10,
+        "generatedTokens": 124,
+        "finishReason": "stop",
+        "inferenceMs": 5454,
+        "decodeMs": 260,
+        "isPartial": false,
+        "selectedFrames": 24,
+        "dimensions": "392x672",
+        "rawOutput": "{\n  \"summary\": \"The video shows a person running at night, wearing earphones and a necklace. The person appears to be listening to realistic running footsteps to improve their speed. At one point, wind chimes start making noise in the woods beside them, adding an unexpected element to the scene.\",\n  \"topics\": [\n    \"nighttime running\",\n    \"realistic running footsteps\",\n    \"earphones\",\n    \"wind chimes\",\n    \"unexpected sound\",\n    \"necklace\",\n    \"dark environment\",\n    \"running activity\",\n    \"personal improvement\",\n    \"random events\"\n  ]\n}",
+        "warnings": []
+      },
+      "windows": [
+        {
+          "windowIndex": 0,
+          "startMs": 0,
+          "endMs": 11000,
+          "semantic": {
+            "observationCount": 3,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A man is running at night."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "The man is running on a dark street."
+              },
+              {
+                "order": 3,
+                "type": "appearance",
+                "description": "The man is wearing earphones."
+              }
+            ],
+            "typeCounts": {
+              "action": 1,
+              "scene": 1,
+              "appearance": 1
+            },
+            "objectCount": 4,
+            "objects": [
+              "man",
+              "earphones",
+              "night",
+              "street"
+            ],
+            "generatedTokens": 139,
+            "finishReason": "stop",
+            "inferenceMs": 5863,
+            "decodeMs": 229,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A man is running at night.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"The man is running on a dark street.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"appearance\",\n      \"description\": \"The man is wearing earphones.\"\n    }\n  ],\n  \"objects\": [\n    \"man\",\n    \"earphones\",\n    \"night\",\n    \"street\",\n    \"running\",\n    \"darkness\"\n  ]\n}\n```",
+            "warnings": [
+              "objects[4]: rejected invalid abstract/action object: 'running'",
+              "objects[5]: rejected invalid abstract/action object: 'darkness'"
+            ]
+          },
+          "ocr": {
+            "allVisibleTexts": [],
+            "totalInferenceMs": 5646,
+            "totalGeneratedTokens": 151,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 23,
+                "finishReason": "stop",
+                "inferenceMs": 826,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 23,
+                "finishReason": "stop",
+                "inferenceMs": 828,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 23,
+                "finishReason": "stop",
+                "inferenceMs": 811,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 23,
+                "finishReason": "stop",
+                "inferenceMs": 813,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 23,
+                "finishReason": "stop",
+                "inferenceMs": 815,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 513,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 518,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 522,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 1,
+          "startMs": 9000,
+          "endMs": 20000,
+          "semantic": {
+            "observationCount": 6,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A hand reaches out towards the camera."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A close-up of a wooden floor."
+              },
+              {
+                "order": 3,
+                "type": "action",
+                "description": "A hand moves quickly across the screen."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A man with a beard and earphones looks at the camera."
+              },
+              {
+                "order": 5,
+                "type": "action",
+                "description": "The man turns his head slightly."
+              },
+              {
+                "order": 6,
+                "type": "scene",
+                "description": "A close-up of a person's chest."
+              }
+            ],
+            "typeCounts": {
+              "action": 3,
+              "scene": 3
+            },
+            "objectCount": 6,
+            "objects": [
+              "hand",
+              "wooden floor",
+              "man",
+              "beard",
+              "earphones",
+              "chest"
+            ],
+            "generatedTokens": 240,
+            "finishReason": "stop",
+            "inferenceMs": 9206,
+            "decodeMs": 240,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A hand reaches out towards the camera.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A close-up of a wooden floor.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"action\",\n      \"description\": \"A hand moves quickly across the screen.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A man with a beard and earphones looks at the camera.\"\n    },\n    {\n      \"order\": 5,\n      \"type\": \"action\",\n      \"description\": \"The man turns his head slightly.\"\n    },\n    {\n      \"order\": 6,\n      \"type\": \"scene\",\n      \"description\": \"A close-up of a person's chest.\"\n    }\n  ],\n  \"objects\": [\n    \"hand\",\n    \"wooden floor\",\n    \"man\",\n    \"beard\",\n    \"earphones\",\n    \"chest\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [],
+            "totalInferenceMs": 4222,
+            "totalGeneratedTokens": 96,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 533,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 528,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 522,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 528,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 527,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 531,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 527,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 526,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 2,
+          "startMs": 18000,
+          "endMs": 27666,
+          "semantic": {
+            "observationCount": 2,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A man with a necklace and earphones is moving his head and shoulders."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "The man is outdoors at night, possibly in a wooded area."
+              }
+            ],
+            "typeCounts": {
+              "action": 1,
+              "scene": 1
+            },
+            "objectCount": 5,
+            "objects": [
+              "man",
+              "necklace",
+              "earphones",
+              "night",
+              "wooded area"
+            ],
+            "generatedTokens": 119,
+            "finishReason": "stop",
+            "inferenceMs": 4920,
+            "decodeMs": 173,
+            "isPartial": false,
+            "selectedFrames": 18,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A man with a necklace and earphones is moving his head and shoulders.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"The man is outdoors at night, possibly in a wooded area.\"\n    }\n  ],\n  \"objects\": [\n    \"man\",\n    \"necklace\",\n    \"earphones\",\n    \"night\",\n    \"wooded area\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [],
+            "totalInferenceMs": 5208,
+            "totalGeneratedTokens": 134,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 525,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 14,
+                "finishReason": "stop",
+                "inferenceMs": 575,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 838,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 854,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 851,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 524,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 525,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 516,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```"
+            ]
+          }
+        }
+      ],
+      "consolidated": {
+        "summary": "The video shows a person running at night, wearing earphones and a necklace. The person appears to be listening to realistic running footsteps to improve their speed. At one point, wind chimes start making noise in the woods beside them, adding an unexpected element to the scene.",
+        "observations": [
+          {
+            "order": 1,
+            "type": "action",
+            "description": "A man is running at night."
+          },
+          {
+            "order": 2,
+            "type": "scene",
+            "description": "The man is running on a dark street."
+          },
+          {
+            "order": 3,
+            "type": "appearance",
+            "description": "The man is wearing earphones."
+          },
+          {
+            "order": 4,
+            "type": "action",
+            "description": "A hand reaches out towards the camera."
+          },
+          {
+            "order": 5,
+            "type": "scene",
+            "description": "A close-up of a wooden floor."
+          },
+          {
+            "order": 6,
+            "type": "action",
+            "description": "A hand moves quickly across the screen."
+          },
+          {
+            "order": 7,
+            "type": "scene",
+            "description": "A man with a beard and earphones looks at the camera."
+          },
+          {
+            "order": 8,
+            "type": "action",
+            "description": "The man turns his head slightly."
+          },
+          {
+            "order": 9,
+            "type": "scene",
+            "description": "A close-up of a person's chest."
+          },
+          {
+            "order": 10,
+            "type": "action",
+            "description": "A man with a necklace and earphones is moving his head and shoulders."
+          },
+          {
+            "order": 11,
+            "type": "scene",
+            "description": "The man is outdoors at night, possibly in a wooded area."
+          }
+        ],
+        "observationCount": 11,
+        "visibleTexts": [],
+        "visibleTextCount": 0,
+        "objects": [
+          "man",
+          "earphones",
+          "night",
+          "street",
+          "hand",
+          "wooden floor",
+          "beard",
+          "chest",
+          "necklace",
+          "wooded area"
+        ],
+        "objectCount": 10,
+        "topics": [
+          "nighttime running",
+          "realistic running footsteps",
+          "earphones",
+          "wind chimes",
+          "unexpected sound",
+          "necklace",
+          "dark environment",
+          "running activity",
+          "personal improvement",
+          "random events"
+        ],
+        "topicCount": 10
+      },
+      "consolidationDiagnostics": [],
+      "metrics": {
+        "totalMs": 43111,
+        "peakVramBytes": 7711971328,
+        "globalOverviewPass": {
+          "inferenceMs": 5454,
+          "generatedTokens": 124,
+          "isPartial": false
+        },
+        "semanticPass": {
+          "totalInferenceMs": 19989,
+          "totalTokens": 498,
+          "isPartial": false
+        },
+        "ocrPass": {
+          "totalInferenceMs": 15076,
+          "totalTokens": 381,
+          "isPartial": true
+        }
+      },
+      "validationWarnings": [
+        "objects[4]: rejected invalid abstract/action object: 'running'",
+        "objects[5]: rejected invalid abstract/action object: 'darkness'",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Listening to realistic running footsteps at night to get me to run faster\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"*Random wind chimes started making noise in the woods beside me😭*\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```"
+      ]
+    },
+    {
+      "video": "video_65_sec.mp4",
+      "durationMs": 65300,
+      "profile": "SEMANTIC_V1",
+      "promptVersion": "visual-analysis-v5",
+      "schemaVersion": "4.0",
+      "twoPassEnabled": true,
+      "strategy": "CHUNKED_NATIVE",
+      "windowCount": 8,
+      "globalOverview": {
+        "summary": "The video features a person wearing headphones and performing various dance moves in different outdoor settings. The individual is seen dancing in front of a red brick wall, on a sidewalk, and in a park. The video also includes text overlays with motivational phrases and philosophical statements, such as 'La historia es una teoría' and 'El darme cuenta que toda la vida y suprema', which suggest themes of self-awareness and life's complexity.",
+        "topics": [
+          "dance",
+          "outdoor settings",
+          "motivational phrases",
+          "philosophical statements",
+          "headphones",
+          "red brick wall",
+          "sidewalk",
+          "park",
+          "dancing",
+          "self-awareness"
+        ],
+        "topicCount": 10,
+        "generatedTokens": 160,
+        "finishReason": "stop",
+        "inferenceMs": 6578,
+        "decodeMs": 825,
+        "isPartial": false,
+        "selectedFrames": 24,
+        "dimensions": "392x672",
+        "rawOutput": "{\n  \"summary\": \"The video features a person wearing headphones and performing various dance moves in different outdoor settings. The individual is seen dancing in front of a red brick wall, on a sidewalk, and in a park. The video also includes text overlays with motivational phrases and philosophical statements, such as 'La historia es una teoría' and 'El darme cuenta que toda la vida y suprema', which suggest themes of self-awareness and life's complexity.\",\n  \"topics\": [\n    \"dance\",\n    \"outdoor settings\",\n    \"motivational phrases\",\n    \"philosophical statements\",\n    \"headphones\",\n    \"red brick wall\",\n    \"sidewalk\",\n    \"park\",\n    \"dancing\",\n    \"self-awareness\"\n  ]\n}",
+        "warnings": []
+      },
+      "windows": [
+        {
+          "windowIndex": 0,
+          "startMs": 0,
+          "endMs": 11000,
+          "semantic": {
+            "observationCount": 6,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A person standing against a red brick wall."
+              },
+              {
+                "order": 2,
+                "type": "action",
+                "description": "The person is walking away from the camera."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A pigeon walking on the ground."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A white van parked on the side of the road."
+              },
+              {
+                "order": 5,
+                "type": "scene",
+                "description": "A garden with green plants and white flowers."
+              },
+              {
+                "order": 6,
+                "type": "scene",
+                "description": "A bouquet of colorful balloons tied to a pole."
+              }
+            ],
+            "typeCounts": {
+              "scene": 5,
+              "action": 1
+            },
+            "objectCount": 9,
+            "objects": [
+              "person",
+              "red brick wall",
+              "pigeon",
+              "white van",
+              "green plants",
+              "white flowers",
+              "bouquet of balloons",
+              "pole",
+              "ground"
+            ],
+            "generatedTokens": 261,
+            "finishReason": "stop",
+            "inferenceMs": 9908,
+            "decodeMs": 248,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A person standing against a red brick wall.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"action\",\n      \"description\": \"The person is walking away from the camera.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A pigeon walking on the ground.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A white van parked on the side of the road.\"\n    },\n    {\n      \"order\": 5,\n      \"type\": \"scene\",\n      \"description\": \"A garden with green plants and white flowers.\"\n    },\n    {\n      \"order\": 6,\n      \"type\": \"scene\",\n      \"description\": \"A bouquet of colorful balloons tied to a pole.\"\n    }\n  ],\n  \"objects\": [\n    \"person\",\n    \"red brick wall\",\n    \"pigeon\",\n    \"white van\",\n    \"green plants\",\n    \"white flowers\",\n    \"bouquet of balloons\",\n    \"pole\",\n    \"ground\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "I'm not so a",
+              "I'm not so a",
+              "demasiado",
+              "RULES",
+              "ALTO",
+              "A63-AHU"
+            ],
+            "totalInferenceMs": 6378,
+            "totalGeneratedTokens": 177,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [
+                  "I'm not so a",
+                  "I'm not so a"
+                ],
+                "generatedTokens": 32,
+                "finishReason": "stop",
+                "inferenceMs": 1069,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [
+                  "demasiado"
+                ],
+                "generatedTokens": 22,
+                "finishReason": "stop",
+                "inferenceMs": 791,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [
+                  "RULES"
+                ],
+                "generatedTokens": 21,
+                "finishReason": "stop",
+                "inferenceMs": 767,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 18,
+                "finishReason": "stop",
+                "inferenceMs": 692,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 27,
+                "finishReason": "stop",
+                "inferenceMs": 927,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [
+                  "ALTO",
+                  "A63-AHU"
+                ],
+                "generatedTokens": 29,
+                "finishReason": "stop",
+                "inferenceMs": 980,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 11,
+                "finishReason": "stop",
+                "inferenceMs": 492,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 660,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Trabajaste\",\n    \"tanto\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ALTO\",\n    \"que\",\n    \"ninguna\",\n    \"teoría\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"las\",\n    \"instituciones,\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 1,
+          "startMs": 9000,
+          "endMs": 20000,
+          "semantic": {
+            "observationCount": 3,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A close-up of green plants with white flowers in the background."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A street vendor selling colorful balloons and stuffed toys."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A person walking in a park, wearing headphones and a black shirt."
+              }
+            ],
+            "typeCounts": {
+              "scene": 3
+            },
+            "objectCount": 12,
+            "objects": [
+              "green plants with white flowers",
+              "street vendor",
+              "colorful balloons",
+              "stuffed toys",
+              "person",
+              "headphones",
+              "black shirt",
+              "park",
+              "trees",
+              "building",
+              "ground",
+              "car"
+            ],
+            "generatedTokens": 186,
+            "finishReason": "stop",
+            "inferenceMs": 7333,
+            "decodeMs": 290,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A close-up of green plants with white flowers in the background.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A street vendor selling colorful balloons and stuffed toys.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A person walking in a park, wearing headphones and a black shirt.\"\n    }\n  ],\n  \"objects\": [\n    \"green plants with white flowers\",\n    \"street vendor\",\n    \"colorful balloons\",\n    \"stuffed toys\",\n    \"person\",\n    \"headphones\",\n    \"black shirt\",\n    \"park\",\n    \"trees\",\n    \"building\",\n    \"ground\",\n    \"car\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "CALIFORNIA",
+              "RULES",
+              "I'M NOT SURE I'M A MACHO",
+              "I'M NOT SURE I'M A FEMINIST"
+            ],
+            "totalInferenceMs": 6993,
+            "totalGeneratedTokens": 200,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 18,
+                "finishReason": "stop",
+                "inferenceMs": 688,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 659,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 841,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 25,
+                "finishReason": "stop",
+                "inferenceMs": 873,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 31,
+                "finishReason": "stop",
+                "inferenceMs": 1052,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [
+                  "CALIFORNIA",
+                  "RULES"
+                ],
+                "generatedTokens": 28,
+                "finishReason": "stop",
+                "inferenceMs": 954,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [
+                  "I'M NOT SURE I'M A MACHO",
+                  "I'M NOT SURE I'M A FEMINIST"
+                ],
+                "generatedTokens": 45,
+                "finishReason": "stop",
+                "inferenceMs": 1405,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 521,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La historia\",\n    \"las reglas.\"\n]\n```",
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"los\",\n    \"instituciones,\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"CALIFORNIA\",\n    \"todos\",\n    \"cuentos\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ILUSIONES\",\n    \"que no\",\n    \"sacuden\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"CALIFORNIA\",\n    \"absoluto\",\n    \"a mis\",\n    \"motivaciones\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"información.\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 2,
+          "startMs": 18000,
+          "endMs": 29000,
+          "semantic": {
+            "observationCount": 4,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A person is dancing outdoors."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A close-up of a wall with a number '111' painted on it."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A person sitting on a colorful bench in a park."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A vintage car parked in a narrow street."
+              }
+            ],
+            "typeCounts": {
+              "action": 1,
+              "scene": 3
+            },
+            "objectCount": 12,
+            "objects": [
+              "person",
+              "dancing",
+              "outdoor",
+              "wall",
+              "number",
+              "painting",
+              "bench",
+              "park",
+              "colorful",
+              "vintage car",
+              "narrow street",
+              "car"
+            ],
+            "generatedTokens": 213,
+            "finishReason": "stop",
+            "inferenceMs": 8300,
+            "decodeMs": 280,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A person is dancing outdoors.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A close-up of a wall with a number '111' painted on it.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A person sitting on a colorful bench in a park.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A vintage car parked in a narrow street.\"\n    }\n  ],\n  \"objects\": [\n    \"person\",\n    \"dancing\",\n    \"outdoor\",\n    \"wall\",\n    \"number\",\n    \"painting\",\n    \"bench\",\n    \"park\",\n    \"colorful\",\n    \"vintage car\",\n    \"narrow street\",\n    \"car\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [],
+            "totalInferenceMs": 6860,
+            "totalGeneratedTokens": 197,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 13,
+                "finishReason": "stop",
+                "inferenceMs": 553,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 30,
+                "finishReason": "stop",
+                "inferenceMs": 996,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 16,
+                "finishReason": "stop",
+                "inferenceMs": 630,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 655,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 653,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 25,
+                "finishReason": "stop",
+                "inferenceMs": 850,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 58,
+                "finishReason": "stop",
+                "inferenceMs": 1758,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 21,
+                "finishReason": "stop",
+                "inferenceMs": 765,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"construcción\"\n]\n```",
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"construcción\",\n    \"o un\",\n    \"parche de\",\n    \"evasión\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"para no enfrentarnos al\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"de\",\n    \"nuestros\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Y sencillamente me puedo\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"a elegir\",\n    \"y creer\",\n    \"leer en\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"AMORES\",\n    \"COL. DEL VALLE CENTRO\",\n    \"B. JUAREZ C.P. 09100\",\n    \"sobrellevar\",\n    \"un\",\n    \"rato\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La\",\n    \"frustración\",\n    \"de\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 3,
+          "startMs": 27000,
+          "endMs": 38000,
+          "semantic": {
+            "observationCount": 5,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A white helicopter is flying over a residential area."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A white Volkswagen Beetle is parked on a narrow street."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A person's feet walking on a sidewalk."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A person is walking down a street with graffiti on the sidewalk."
+              },
+              {
+                "order": 5,
+                "type": "scene",
+                "description": "A person is stretching their arms while walking on a sidewalk."
+              }
+            ],
+            "typeCounts": {
+              "scene": 5
+            },
+            "objectCount": 8,
+            "objects": [
+              "white helicopter",
+              "residential area",
+              "white Volkswagen Beetle",
+              "narrow street",
+              "sidewalk",
+              "person's feet",
+              "graffiti",
+              "person stretching arms"
+            ],
+            "generatedTokens": 238,
+            "finishReason": "stop",
+            "inferenceMs": 9130,
+            "decodeMs": 276,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A white helicopter is flying over a residential area.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A white Volkswagen Beetle is parked on a narrow street.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A person's feet walking on a sidewalk.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A person is walking down a street with graffiti on the sidewalk.\"\n    },\n    {\n      \"order\": 5,\n      \"type\": \"scene\",\n      \"description\": \"A person is stretching their arms while walking on a sidewalk.\"\n    }\n  ],\n  \"objects\": [\n    \"white helicopter\",\n    \"residential area\",\n    \"white Volkswagen Beetle\",\n    \"narrow street\",\n    \"sidewalk\",\n    \"person's feet\",\n    \"graffiti\",\n    \"person stretching arms\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "humano",
+              "396-PPD"
+            ],
+            "totalInferenceMs": 7106,
+            "totalGeneratedTokens": 203,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 63,
+                "finishReason": "stop",
+                "inferenceMs": 1916,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 664,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [
+                  "humano",
+                  "396-PPD"
+                ],
+                "generatedTokens": 30,
+                "finishReason": "stop",
+                "inferenceMs": 1014,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 19,
+                "finishReason": "stop",
+                "inferenceMs": 714,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 18,
+                "finishReason": "stop",
+                "inferenceMs": 691,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 659,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 656,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 22,
+                "finishReason": "stop",
+                "inferenceMs": 792,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"AMORES\",\n    \"COL. DEL VALLE CENTRO\",\n    \"B. JUAREZ CP 04100\",\n    \"sobrellevar\",\n    \"un\",\n    \"rato esa\",\n    \"frustración\"\n]\n```",
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"toda\",\n    \"contribución\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"no aporta\",\n    \"ninguna\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Y mi problema\",\n    \"22\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"no recae\",\n    \"en\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"alao\",\n    \"22\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"El darme\",\n    \"cuenta\",\n    \"que\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 4,
+          "startMs": 36000,
+          "endMs": 47000,
+          "semantic": {
+            "observationCount": 3,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A person is dancing on a sidewalk."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A tree with a person's hand reaching up towards it."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A green liquid is being poured from a container into a blue machine."
+              }
+            ],
+            "typeCounts": {
+              "action": 1,
+              "scene": 2
+            },
+            "objectCount": 12,
+            "objects": [
+              "person",
+              "sidewalk",
+              "tree",
+              "hand",
+              "container",
+              "blue machine",
+              "green liquid",
+              "building",
+              "street",
+              "car",
+              "garden",
+              "building exterior"
+            ],
+            "generatedTokens": 178,
+            "finishReason": "stop",
+            "inferenceMs": 6870,
+            "decodeMs": 240,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A person is dancing on a sidewalk.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A tree with a person's hand reaching up towards it.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A green liquid is being poured from a container into a blue machine.\"\n    }\n  ],\n  \"objects\": [\n    \"person\",\n    \"sidewalk\",\n    \"tree\",\n    \"hand\",\n    \"container\",\n    \"blue machine\",\n    \"green liquid\",\n    \"building\",\n    \"street\",\n    \"car\",\n    \"garden\",\n    \"building exterior\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "El darme",
+              "maraña",
+              "manipuladora.",
+              "progresista.",
+              "racionalista",
+              "evolucionista",
+              "racionalista",
+              "evolucionista",
+              "conquistadora",
+              "espiritista"
+            ],
+            "totalInferenceMs": 7283,
+            "totalGeneratedTokens": 212,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [
+                  "El darme"
+                ],
+                "generatedTokens": 22,
+                "finishReason": "stop",
+                "inferenceMs": 797,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [
+                  "maraña"
+                ],
+                "generatedTokens": 22,
+                "finishReason": "stop",
+                "inferenceMs": 793,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 28,
+                "finishReason": "stop",
+                "inferenceMs": 952,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [
+                  "manipuladora.",
+                  "progresista."
+                ],
+                "generatedTokens": 29,
+                "finishReason": "stop",
+                "inferenceMs": 970,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 31,
+                "finishReason": "stop",
+                "inferenceMs": 1025,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 518,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [
+                  "racionalista",
+                  "evolucionista"
+                ],
+                "generatedTokens": 28,
+                "finishReason": "stop",
+                "inferenceMs": 951,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [
+                  "racionalista",
+                  "evolucionista",
+                  "conquistadora",
+                  "espiritista"
+                ],
+                "generatedTokens": 40,
+                "finishReason": "stop",
+                "inferenceMs": 1277,
+                "isPartial": false
+              }
+            ],
+            "warnings": [
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"maraña de\",\n    \"información\",\n    \"antropocentrista\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"manipuladora\",\n    \"progresista\",\n    \"controladora\",\n    \"romanticista\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 5,
+          "startMs": 45000,
+          "endMs": 56000,
+          "semantic": {
+            "observationCount": 4,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A colorful machine dispensing green liquid into a cup."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "A person wearing a black shirt with white text, holding their head with one hand."
+              },
+              {
+                "order": 3,
+                "type": "scene",
+                "description": "A cartoon character pointing towards something off-screen."
+              },
+              {
+                "order": 4,
+                "type": "scene",
+                "description": "A person in a black shirt and white pants dancing outdoors."
+              }
+            ],
+            "typeCounts": {
+              "scene": 4
+            },
+            "objectCount": 12,
+            "objects": [
+              "colorful machine",
+              "green liquid",
+              "cup",
+              "person",
+              "black shirt",
+              "white text",
+              "cartoon character",
+              "off-screen object",
+              "outdoor setting",
+              "dancing person",
+              "black pants",
+              "white shoes"
+            ],
+            "generatedTokens": 225,
+            "finishReason": "stop",
+            "inferenceMs": 8689,
+            "decodeMs": 267,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A colorful machine dispensing green liquid into a cup.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"A person wearing a black shirt with white text, holding their head with one hand.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"scene\",\n      \"description\": \"A cartoon character pointing towards something off-screen.\"\n    },\n    {\n      \"order\": 4,\n      \"type\": \"scene\",\n      \"description\": \"A person in a black shirt and white pants dancing outdoors.\"\n    }\n  ],\n  \"objects\": [\n    \"colorful machine\",\n    \"green liquid\",\n    \"cup\",\n    \"person\",\n    \"black shirt\",\n    \"white text\",\n    \"cartoon character\",\n    \"off-screen object\",\n    \"outdoor setting\",\n    \"dancing person\",\n    \"black pants\",\n    \"white shoes\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "sistematizadora",
+              "RULES"
+            ],
+            "totalInferenceMs": 7929,
+            "totalGeneratedTokens": 233,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 25,
+                "finishReason": "stop",
+                "inferenceMs": 865,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [
+                  "sistematizadora",
+                  "RULES"
+                ],
+                "generatedTokens": 29,
+                "finishReason": "stop",
+                "inferenceMs": 990,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 14,
+                "finishReason": "stop",
+                "inferenceMs": 575,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 19,
+                "finishReason": "stop",
+                "inferenceMs": 721,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 18,
+                "finishReason": "stop",
+                "inferenceMs": 692,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 16,
+                "finishReason": "stop",
+                "inferenceMs": 635,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 28,
+                "finishReason": "stop",
+                "inferenceMs": 971,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 84,
+                "finishReason": "stop",
+                "inferenceMs": 2480,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"racionalista\",\n    \"evolucionista\",\n    \"conquistadora,\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Toda esta información\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"llevado a\",\n    \"ningún\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Nos ha\",\n    \"aportado\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ha\",\n    \"alejandro\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ha\",\n    \"alejado\",\n    \"de ella\",\n    \"más y\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"799\",\n    \"FLAUTAS\",\n    \"VERDE\",\n    \"RUTA 100\",\n    \"CALLE 100\",\n    \"24HRS\",\n    \"24HRS\",\n    \"24HRS\",\n    \"Me\",\n    \"impresiona\",\n    \"que el\",\n    \"humano\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 6,
+          "startMs": 54000,
+          "endMs": 65000,
+          "semantic": {
+            "observationCount": 3,
+            "observations": [
+              {
+                "order": 1,
+                "type": "scene",
+                "description": "A person is walking down a sidewalk next to a food truck."
+              },
+              {
+                "order": 2,
+                "type": "action",
+                "description": "A person is dancing in a park."
+              },
+              {
+                "order": 3,
+                "type": "action",
+                "description": "A person is running in a park."
+              }
+            ],
+            "typeCounts": {
+              "scene": 1,
+              "action": 2
+            },
+            "objectCount": 11,
+            "objects": [
+              "food truck",
+              "sidewalk",
+              "park",
+              "trees",
+              "person",
+              "dancing",
+              "black shirt",
+              "white shoes",
+              "black pants",
+              "earphones",
+              "building"
+            ],
+            "generatedTokens": 175,
+            "finishReason": "stop",
+            "inferenceMs": 7026,
+            "decodeMs": 289,
+            "isPartial": false,
+            "selectedFrames": 22,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"scene\",\n      \"description\": \"A person is walking down a sidewalk next to a food truck.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"action\",\n      \"description\": \"A person is dancing in a park.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"action\",\n      \"description\": \"A person is running in a park.\"\n    }\n  ],\n  \"objects\": [\n    \"food truck\",\n    \"sidewalk\",\n    \"park\",\n    \"trees\",\n    \"person\",\n    \"dancing\",\n    \"running\",\n    \"black shirt\",\n    \"white shoes\",\n    \"black pants\",\n    \"earphones\",\n    \"building\"\n  ]\n}\n```",
+            "warnings": [
+              "objects[6]: rejected invalid abstract/action object: 'running'"
+            ]
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "enorgullezca",
+              "I'M NOT SOCCER DRUG ADDICT I JUST HATE YOU"
+            ],
+            "totalInferenceMs": 5883,
+            "totalGeneratedTokens": 159,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 660,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [
+                  "enorgullezca"
+                ],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 851,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [
+                  "I'M NOT SOCCER DRUG ADDICT I JUST HATE YOU"
+                ],
+                "generatedTokens": 34,
+                "finishReason": "stop",
+                "inferenceMs": 1133,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 12,
+                "finishReason": "stop",
+                "inferenceMs": 528,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 648,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 18,
+                "finishReason": "stop",
+                "inferenceMs": 676,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 13,
+                "finishReason": "stop",
+                "inferenceMs": 549,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 24,
+                "finishReason": "stop",
+                "inferenceMs": 838,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Me\",\n    \"impresiona\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Sin embargo.\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"la que\",\n    \"nos ha\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"desconexión\",\n    \"total\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n    \"siento\"\n]\n```"
+            ]
+          }
+        },
+        {
+          "windowIndex": 7,
+          "startMs": 63000,
+          "endMs": 65300,
+          "semantic": {
+            "observationCount": 3,
+            "observations": [
+              {
+                "order": 1,
+                "type": "action",
+                "description": "A person stands in a park, gesturing with their right hand."
+              },
+              {
+                "order": 2,
+                "type": "scene",
+                "description": "The scene transitions to a black screen with white text."
+              },
+              {
+                "order": 3,
+                "type": "appearance",
+                "description": "The person is wearing a black t-shirt, black pants, white socks, and a black waist bag."
+              }
+            ],
+            "typeCounts": {
+              "action": 1,
+              "scene": 1,
+              "appearance": 1
+            },
+            "objectCount": 9,
+            "objects": [
+              "person",
+              "park",
+              "black t-shirt",
+              "black pants",
+              "white socks",
+              "black waist bag",
+              "text on shirt",
+              "black screen",
+              "white text"
+            ],
+            "generatedTokens": 182,
+            "finishReason": "stop",
+            "inferenceMs": 5341,
+            "decodeMs": 75,
+            "isPartial": false,
+            "selectedFrames": 4,
+            "dimensions": "392x672",
+            "rawOutput": "```json\n{\n  \"observations\": [\n    {\n      \"order\": 1,\n      \"type\": \"action\",\n      \"description\": \"A person stands in a park, gesturing with their right hand.\"\n    },\n    {\n      \"order\": 2,\n      \"type\": \"scene\",\n      \"description\": \"The scene transitions to a black screen with white text.\"\n    },\n    {\n      \"order\": 3,\n      \"type\": \"appearance\",\n      \"description\": \"The person is wearing a black t-shirt, black pants, white socks, and a black waist bag.\"\n    }\n  ],\n  \"objects\": [\n    \"person\",\n    \"park\",\n    \"black t-shirt\",\n    \"black pants\",\n    \"white socks\",\n    \"black waist bag\",\n    \"text on shirt\",\n    \"black screen\",\n    \"white text\"\n  ]\n}\n```",
+            "warnings": []
+          },
+          "ocr": {
+            "allVisibleTexts": [
+              "sabiendo",
+              "demasiado,"
+            ],
+            "totalInferenceMs": 5368,
+            "totalGeneratedTokens": 140,
+            "selectedFrames": 8,
+            "isPartial": true,
+            "frameResults": [
+              {
+                "frameIndex": 0,
+                "visibleTexts": [
+                  "sabiendo",
+                  "demasiado,"
+                ],
+                "generatedTokens": 28,
+                "finishReason": "stop",
+                "inferenceMs": 959,
+                "isPartial": false
+              },
+              {
+                "frameIndex": 1,
+                "visibleTexts": [],
+                "generatedTokens": 19,
+                "finishReason": "stop",
+                "inferenceMs": 711,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 2,
+                "visibleTexts": [],
+                "generatedTokens": 19,
+                "finishReason": "stop",
+                "inferenceMs": 719,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 3,
+                "visibleTexts": [],
+                "generatedTokens": 19,
+                "finishReason": "stop",
+                "inferenceMs": 713,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 4,
+                "visibleTexts": [],
+                "generatedTokens": 11,
+                "finishReason": "stop",
+                "inferenceMs": 491,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 5,
+                "visibleTexts": [],
+                "generatedTokens": 16,
+                "finishReason": "stop",
+                "inferenceMs": 632,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 6,
+                "visibleTexts": [],
+                "generatedTokens": 11,
+                "finishReason": "stop",
+                "inferenceMs": 492,
+                "isPartial": true
+              },
+              {
+                "frameIndex": 7,
+                "visibleTexts": [],
+                "generatedTokens": 17,
+                "finishReason": "stop",
+                "inferenceMs": 651,
+                "isPartial": true
+              }
+            ],
+            "warnings": [
+              "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+              "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+              "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+              "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"he\"\n]\n```",
+              "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"he\",\n    \"nutrido\"\n]\n```",
+              "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"lo\"\n]\n```",
+              "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"lo\",\n    \"absoluto\"\n]\n```"
+            ]
+          }
+        }
+      ],
+      "consolidated": {
+        "summary": "The video features a person wearing headphones and performing various dance moves in different outdoor settings. The individual is seen dancing in front of a red brick wall, on a sidewalk, and in a park. The video also includes text overlays with motivational phrases and philosophical statements, such as 'La historia es una teoría' and 'El darme cuenta que toda la vida y suprema', which suggest themes of self-awareness and life's complexity.",
+        "observations": [
+          {
+            "order": 1,
+            "type": "scene",
+            "description": "A person standing against a red brick wall."
+          },
+          {
+            "order": 2,
+            "type": "action",
+            "description": "The person is walking away from the camera."
+          },
+          {
+            "order": 3,
+            "type": "scene",
+            "description": "A pigeon walking on the ground."
+          },
+          {
+            "order": 4,
+            "type": "scene",
+            "description": "A white van parked on the side of the road."
+          },
+          {
+            "order": 5,
+            "type": "scene",
+            "description": "A garden with green plants and white flowers."
+          },
+          {
+            "order": 6,
+            "type": "scene",
+            "description": "A bouquet of colorful balloons tied to a pole."
+          },
+          {
+            "order": 7,
+            "type": "scene",
+            "description": "A close-up of green plants with white flowers in the background."
+          },
+          {
+            "order": 8,
+            "type": "scene",
+            "description": "A street vendor selling colorful balloons and stuffed toys."
+          },
+          {
+            "order": 9,
+            "type": "scene",
+            "description": "A person walking in a park, wearing headphones and a black shirt."
+          },
+          {
+            "order": 10,
+            "type": "action",
+            "description": "A person is dancing outdoors."
+          },
+          {
+            "order": 11,
+            "type": "scene",
+            "description": "A close-up of a wall with a number '111' painted on it."
+          },
+          {
+            "order": 12,
+            "type": "scene",
+            "description": "A person sitting on a colorful bench in a park."
+          },
+          {
+            "order": 13,
+            "type": "scene",
+            "description": "A vintage car parked in a narrow street."
+          },
+          {
+            "order": 14,
+            "type": "scene",
+            "description": "A white helicopter is flying over a residential area."
+          },
+          {
+            "order": 15,
+            "type": "scene",
+            "description": "A white Volkswagen Beetle is parked on a narrow street."
+          },
+          {
+            "order": 16,
+            "type": "scene",
+            "description": "A person's feet walking on a sidewalk."
+          },
+          {
+            "order": 17,
+            "type": "scene",
+            "description": "A person is walking down a street with graffiti on the sidewalk."
+          },
+          {
+            "order": 18,
+            "type": "scene",
+            "description": "A person is stretching their arms while walking on a sidewalk."
+          },
+          {
+            "order": 19,
+            "type": "action",
+            "description": "A person is dancing on a sidewalk."
+          },
+          {
+            "order": 20,
+            "type": "scene",
+            "description": "A tree with a person's hand reaching up towards it."
+          },
+          {
+            "order": 21,
+            "type": "scene",
+            "description": "A green liquid is being poured from a container into a blue machine."
+          },
+          {
+            "order": 22,
+            "type": "scene",
+            "description": "A colorful machine dispensing green liquid into a cup."
+          },
+          {
+            "order": 23,
+            "type": "scene",
+            "description": "A person wearing a black shirt with white text, holding their head with one hand."
+          },
+          {
+            "order": 24,
+            "type": "scene",
+            "description": "A cartoon character pointing towards something off-screen."
+          },
+          {
+            "order": 25,
+            "type": "scene",
+            "description": "A person in a black shirt and white pants dancing outdoors."
+          },
+          {
+            "order": 26,
+            "type": "scene",
+            "description": "A person is walking down a sidewalk next to a food truck."
+          },
+          {
+            "order": 27,
+            "type": "action",
+            "description": "A person stands in a park, gesturing with their right hand."
+          },
+          {
+            "order": 28,
+            "type": "scene",
+            "description": "The scene transitions to a black screen with white text."
+          },
+          {
+            "order": 29,
+            "type": "appearance",
+            "description": "The person is wearing a black t-shirt, black pants, white socks, and a black waist bag."
+          }
+        ],
+        "observationCount": 29,
+        "visibleTexts": [
+          "I'm not so a",
+          "demasiado,",
+          "RULES",
+          "ALTO",
+          "A63-AHU",
+          "CALIFORNIA",
+          "I'M NOT SURE I'M A MACHO",
+          "I'M NOT SURE I'M A FEMINIST",
+          "humano",
+          "396-PPD",
+          "El darme",
+          "maraña",
+          "manipuladora.",
+          "progresista.",
+          "racionalista",
+          "evolucionista",
+          "conquistadora",
+          "espiritista",
+          "sistematizadora",
+          "enorgullezca",
+          "I'M NOT SOCCER DRUG ADDICT I JUST HATE YOU",
+          "sabiendo"
+        ],
+        "visibleTextCount": 22,
+        "objects": [
+          "person",
+          "red brick wall",
+          "pigeon",
+          "white van",
+          "green plants",
+          "white flowers",
+          "bouquet of balloons",
+          "pole",
+          "ground",
+          "green plants with white flowers",
+          "street vendor",
+          "colorful balloons",
+          "stuffed toys",
+          "headphones",
+          "black shirt",
+          "park",
+          "trees",
+          "building",
+          "car",
+          "dancing",
+          "outdoor",
+          "wall",
+          "number",
+          "painting",
+          "bench",
+          "colorful",
+          "vintage car",
+          "narrow street",
+          "white helicopter",
+          "residential area",
+          "white Volkswagen Beetle",
+          "sidewalk",
+          "person's feet",
+          "graffiti",
+          "person stretching arms",
+          "tree",
+          "hand",
+          "container",
+          "blue machine",
+          "green liquid",
+          "street",
+          "garden",
+          "building exterior",
+          "colorful machine",
+          "cup",
+          "white text",
+          "cartoon character",
+          "off-screen object",
+          "outdoor setting",
+          "dancing person",
+          "black pants",
+          "white shoes",
+          "food truck",
+          "earphones",
+          "black t-shirt",
+          "white socks",
+          "black waist bag",
+          "text on shirt",
+          "black screen"
+        ],
+        "objectCount": 59,
+        "topics": [
+          "dance",
+          "outdoor settings",
+          "motivational phrases",
+          "philosophical statements",
+          "headphones",
+          "red brick wall",
+          "sidewalk",
+          "park",
+          "dancing",
+          "self-awareness"
+        ],
+        "topicCount": 10
+      },
+      "consolidationDiagnostics": [
+        "Window 6: deduplicated action: A person is dancing in a park.",
+        "Window 6: deduplicated action: A person is running in a park.",
+        "Window 0: deduplicated visible text: I'm not so a",
+        "Window 1: deduplicated visible text: RULES",
+        "Window 4: deduplicated visible text: racionalista",
+        "Window 4: deduplicated visible text: evolucionista",
+        "Window 5: deduplicated visible text: RULES",
+        "Window 7: replaced shorter text variant with more complete: demasiado,"
+      ],
+      "metrics": {
+        "totalMs": 130835,
+        "peakVramBytes": 7711983616,
+        "globalOverviewPass": {
+          "inferenceMs": 6578,
+          "generatedTokens": 160,
+          "isPartial": false
+        },
+        "semanticPass": {
+          "totalInferenceMs": 62597,
+          "totalTokens": 1658,
+          "isPartial": false
+        },
+        "ocrPass": {
+          "totalInferenceMs": 53800,
+          "totalTokens": 1521,
+          "isPartial": true
+        }
+      },
+      "validationWarnings": [
+        "objects[6]: rejected invalid abstract/action object: 'running'",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Trabajaste\",\n    \"tanto\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ALTO\",\n    \"que\",\n    \"ninguna\",\n    \"teoría\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"las\",\n    \"instituciones,\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La historia\",\n    \"las reglas.\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"los\",\n    \"instituciones,\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"CALIFORNIA\",\n    \"todos\",\n    \"cuentos\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ILUSIONES\",\n    \"que no\",\n    \"sacuden\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"CALIFORNIA\",\n    \"absoluto\",\n    \"a mis\",\n    \"motivaciones\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"información.\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"construcción\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"construcción\",\n    \"o un\",\n    \"parche de\",\n    \"evasión\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"para no enfrentarnos al\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"de\",\n    \"nuestros\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Y sencillamente me puedo\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"a elegir\",\n    \"y creer\",\n    \"leer en\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"AMORES\",\n    \"COL. DEL VALLE CENTRO\",\n    \"B. JUAREZ C.P. 09100\",\n    \"sobrellevar\",\n    \"un\",\n    \"rato\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"La\",\n    \"frustración\",\n    \"de\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"AMORES\",\n    \"COL. DEL VALLE CENTRO\",\n    \"B. JUAREZ CP 04100\",\n    \"sobrellevar\",\n    \"un\",\n    \"rato esa\",\n    \"frustración\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"toda\",\n    \"contribución\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"no aporta\",\n    \"ninguna\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Y mi problema\",\n    \"22\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"no recae\",\n    \"en\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"alao\",\n    \"22\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"El darme\",\n    \"cuenta\",\n    \"que\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"maraña de\",\n    \"información\",\n    \"antropocentrista\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"manipuladora\",\n    \"progresista\",\n    \"controladora\",\n    \"romanticista\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"RULES\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"racionalista\",\n    \"evolucionista\",\n    \"conquistadora,\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Toda esta información\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"llevado a\",\n    \"ningún\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Nos ha\",\n    \"aportado\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ha\",\n    \"alejandro\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"ha\",\n    \"alejado\",\n    \"de ella\",\n    \"más y\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"799\",\n    \"FLAUTAS\",\n    \"VERDE\",\n    \"RUTA 100\",\n    \"CALLE 100\",\n    \"24HRS\",\n    \"24HRS\",\n    \"24HRS\",\n    \"Me\",\n    \"impresiona\",\n    \"que el\",\n    \"humano\"\n]\n```",
+        "Frame 0 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Me\",\n    \"impresiona\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"Sin embargo.\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"la que\",\n    \"nos ha\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"desconexión\",\n    \"total\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n    \"siento\"\n]\n```",
+        "Frame 1 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+        "Frame 2 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+        "Frame 3 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"sabiendo\",\n    \"demasiado,\"\n]\n```",
+        "Frame 4 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"he\"\n]\n```",
+        "Frame 5 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"he\",\n    \"nutrido\"\n]\n```",
+        "Frame 6 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"lo\"\n]\n```",
+        "Frame 7 OCR validation failed: No JSON object found in model output: ```json\n[\n    \"lo\",\n    \"absoluto\"\n]\n```"
+      ]
+    }
+  ]
+}

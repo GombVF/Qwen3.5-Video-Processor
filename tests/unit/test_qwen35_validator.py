@@ -1,0 +1,230 @@
+import json
+
+import pytest
+
+from visual_service.validation.output_validator import (
+    ModelOutputInvalid,
+    salvage_truncated_output,
+    validate_global_overview,
+    validate_observations,
+    validate_ocr_batch,
+)
+
+
+def test_global_overview_validates_and_deduplicates_topics():
+    result = validate_global_overview(
+        '{"summary":"Una persona cocina.","topics":["cocina","Cocina"]}',
+        max_topics=10,
+    )
+    assert result.output.topics == ["cocina"]
+
+
+def test_observation_order_is_normalized():
+    raw = json.dumps({
+        "observations": [
+            {"order": 9, "type": "action", "description": "La persona vierte líquido."},
+            {"order": 3, "type": "scene", "description": "Hay una cocina."},
+        ],
+        "objects": ["tazón"],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert [item.order for item in result.output.observations] == [1, 2]
+
+
+def test_invalid_observation_type_is_discarded_not_rejected():
+    raw = '{"observations":[{"order":1,"type":"exercise","description":"x"}],"objects":[]}'
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert len(result.output.observations) == 0
+    assert result.is_partial is True
+    assert any("exercise" in w for w in result.warnings)
+
+
+def test_valid_observation_types_accepted():
+    for obs_type in ("action", "scene", "appearance"):
+        raw = json.dumps({
+            "observations": [{"order": 1, "type": obs_type, "description": "test"}],
+            "objects": [],
+        })
+        result = validate_observations(raw, max_observations=8, max_objects=12)
+        assert result.output.observations[0].type == obs_type
+
+
+def test_observation_type_case_insensitive():
+    raw = '{"observations":[{"order":1,"type":"ACTION","description":"x"}],"objects":[]}'
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert result.output.observations[0].type == "action"
+
+
+@pytest.mark.parametrize("field", ["startMs", "endMs", "frameIndices", "timestamp"])
+def test_temporal_fields_are_rejected_recursively(field):
+    raw = json.dumps({
+        "observations": [{
+            "order": 1, "type": "scene", "description": "x", field: 10,
+        }],
+        "objects": [],
+    })
+    with pytest.raises(ModelOutputInvalid, match="Temporal field"):
+        validate_observations(raw, max_observations=8, max_objects=12)
+
+
+def test_ocr_canonical_batch():
+    raw = json.dumps({"images": [
+        {"imageIndex": 0, "visibleTexts": ["HELLO"]},
+        {"imageIndex": 1, "visibleTexts": []},
+    ]})
+    result = validate_ocr_batch(raw, image_count=2, max_texts_per_image=12)
+    assert result.output.images[0].visibleTexts == ["HELLO"]
+
+
+def test_ocr_bare_array_regression_from_v5_is_recovered():
+    result = validate_ocr_batch('["HELLO","WORLD"]', image_count=1, max_texts_per_image=12)
+    assert result.output.images[0].visibleTexts == ["HELLO", "WORLD"]
+    assert any("bare OCR string array" in warning for warning in result.warnings)
+
+
+def test_ocr_wrong_image_count_rejected():
+    raw = '{"images":[{"imageIndex":0,"visibleTexts":[]}]}'
+    with pytest.raises(ModelOutputInvalid, match="expected 2"):
+        validate_ocr_batch(raw, image_count=2, max_texts_per_image=12)
+
+
+def test_markdown_fence_is_tolerated_but_reported():
+    raw = '```json\n{"summary":"x","topics":[]}\n```'
+    result = validate_global_overview(raw, max_topics=10)
+    assert any("code fence" in warning for warning in result.warnings)
+
+
+def test_forward_salvage_never_closes_unfinished_string():
+    raw = '{"observations":[{"order":1,"type":"action","description":"complete"}],"objects":["bowl","unfin'
+    salvage = salvage_truncated_output(raw)
+    assert salvage is not None
+    serialized = json.dumps(salvage.data)
+    assert "unfin" not in serialized
+    assert "complete" in serialized
+
+
+def test_no_salvage_without_complete_value():
+    assert salvage_truncated_output('{"summary":"unfinished') is None
+
+
+def test_salvage_never_fabricates_fields():
+    raw = '{"observations":[{"order":1,"type":"action","description":"done"}],"objects":["x","y'
+    salvage = salvage_truncated_output(raw)
+    assert salvage is not None
+    data = salvage.data
+    assert "observations" in data
+    obs = data["observations"]
+    assert len(obs) == 1
+    assert obs[0]["description"] == "done"
+
+
+def test_salvage_preserves_complete_objects():
+    raw = '{"summary":"ok","topics":["a","b","c'
+    salvage = salvage_truncated_output(raw)
+    assert salvage is not None
+    assert salvage.data.get("summary") == "ok"
+
+
+# --- Item-level semantic validation ---
+
+def test_valid_observation_preserved_when_another_has_type_object():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "action", "description": "A person places a container."},
+            {"order": 2, "type": "object", "description": "A blue container."},
+            {"order": 3, "type": "scene", "description": "An outdoor walkway."},
+        ],
+        "objects": ["blue container", "table"],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert len(result.output.observations) == 2
+    assert result.output.observations[0].type == "action"
+    assert result.output.observations[0].description == "A person places a container."
+    assert result.output.observations[1].type == "scene"
+    assert result.output.observations[1].description == "An outdoor walkway."
+    assert result.output.objects == ["blue container", "table"]
+    assert result.is_partial is True
+
+
+def test_invalid_types_are_not_reinterpreted():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "object", "description": "A blue container."},
+        ],
+        "objects": [],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert len(result.output.observations) == 0
+    assert result.is_partial is True
+    assert not any("appearance" in w for w in result.warnings)
+    assert not any("scene" in w and "map" in w for w in result.warnings)
+
+
+def test_remaining_order_is_normalized_after_discard():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "action", "description": "First."},
+            {"order": 2, "type": "object", "description": "Bad."},
+            {"order": 3, "type": "scene", "description": "Third."},
+        ],
+        "objects": [],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert [item.order for item in result.output.observations] == [1, 2]
+
+
+def test_discarding_invalid_observation_marks_partial():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "action", "description": "Valid."},
+            {"order": 2, "type": "object", "description": "Invalid."},
+        ],
+        "objects": [],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert result.is_partial is True
+
+
+def test_diagnostics_identify_discarded_entry_and_type():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "action", "description": "Valid."},
+            {"order": 2, "type": "object", "description": "Invalid."},
+        ],
+        "objects": [],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert any(
+        "discarded observation 2" in w and "'object'" in w
+        for w in result.warnings
+    )
+
+
+def test_completely_unusable_output_still_fails_safely():
+    raw = '{"not_observations": true}'
+    with pytest.raises(ModelOutputInvalid):
+        validate_observations(raw, max_observations=8, max_objects=12)
+
+
+def test_objects_preserved_when_observations_partially_discarded():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "object", "description": "Bad."},
+        ],
+        "objects": ["table", "chair"],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert result.output.objects == ["table", "chair"]
+
+
+def test_all_valid_observations_not_partial():
+    raw = json.dumps({
+        "observations": [
+            {"order": 1, "type": "action", "description": "Walks."},
+            {"order": 2, "type": "scene", "description": "Room."},
+        ],
+        "objects": [],
+    })
+    result = validate_observations(raw, max_observations=8, max_objects=12)
+    assert result.is_partial is False
+    assert len(result.output.observations) == 2
