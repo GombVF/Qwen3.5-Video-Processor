@@ -10,6 +10,7 @@ import os
 import platform
 import sys
 import time
+import traceback
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -42,6 +43,11 @@ def parse_args() -> argparse.Namespace:
         action="append",
         type=Path,
         help="Video path. Repeat for multiple videos. Defaults to data/test_videos/*.mp4.",
+    )
+    parser.add_argument(
+        "--media-dir",
+        type=Path,
+        help="Directory of .mp4 files to benchmark. All .mp4 files are included, sorted by name.",
     )
     parser.add_argument(
         "--output",
@@ -80,7 +86,12 @@ def video_duration_ms(path: Path) -> int:
 
 async def run() -> None:
     args = parse_args()
-    media_paths = args.media or sorted((PROJECT_ROOT / "data" / "test_videos").glob("*.mp4"))
+    if args.media_dir:
+        if not args.media_dir.is_dir():
+            raise SystemExit(f"--media-dir is not a directory: {args.media_dir}")
+        media_paths = sorted(args.media_dir.glob("*.mp4"))
+    else:
+        media_paths = args.media or sorted((PROJECT_ROOT / "data" / "test_videos").glob("*.mp4"))
     if not media_paths:
         raise SystemExit("No media files provided or found")
     for path in media_paths:
@@ -175,11 +186,31 @@ async def run() -> None:
             }
 
         results = []
-        for media_path in media_paths:
+        failed_videos: list[dict] = []
+        total_videos = len(media_paths)
+        for video_idx, media_path in enumerate(media_paths, 1):
             duration_ms = video_duration_ms(media_path)
-            result = await run_visual_pipeline(
-                runtime, media_path, duration_ms, settings, analysis_mode=mode,
-            )
+            print(f"[{video_idx}/{total_videos}] {media_path.name} ({duration_ms}ms)")
+            video_started = time.perf_counter()
+            try:
+                result = await run_visual_pipeline(
+                    runtime, media_path, duration_ms, settings, analysis_mode=mode,
+                )
+            except Exception as exc:
+                video_elapsed = int((time.perf_counter() - video_started) * 1000)
+                error_msg = f"{type(exc).__name__}: {exc}"
+                print(f"    FAILED in {video_elapsed}ms — {error_msg}")
+                failed_videos.append({
+                    "media": str(media_path.resolve()),
+                    "durationMs": duration_ms,
+                    "elapsedMs": video_elapsed,
+                    "error": error_msg,
+                    "traceback": traceback.format_exc(),
+                })
+                import torch
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+                continue
             video_entry = {
                 "media": str(media_path.resolve()),
                 "durationMs": duration_ms,
@@ -214,7 +245,15 @@ async def run() -> None:
                     "groupSizes": sa.evidence_group_sizes,
                     "largestGroupSpan": sa.evidence_largest_group_span,
                 }
+            video_elapsed = int((time.perf_counter() - video_started) * 1000)
+            print(f"    done in {video_elapsed}ms — {len(result.consolidated.observations)} obs, "
+                  f"{len(result.consolidated.visible_texts)} texts, "
+                  f"{len(result.consolidated.communicated_ideas)} ideas, "
+                  f"{len(result.consolidated.themes)} themes")
             results.append(video_entry)
+            import torch
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
 
         kd = runtime.kernel_diagnostics
         fla_calls = (
@@ -288,10 +327,13 @@ async def run() -> None:
             },
             "warmup": warmup_record,
             "results": results,
+            "failedVideos": failed_videos,
         }
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"Benchmark written to {args.output}")
+        if failed_videos:
+            print(f"WARNING: {len(failed_videos)}/{total_videos} videos failed")
     finally:
         await runtime.close()
 

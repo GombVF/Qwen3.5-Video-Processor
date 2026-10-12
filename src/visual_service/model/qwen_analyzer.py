@@ -529,6 +529,9 @@ def _generate_text_only(
                 pad_token_id=runtime.processor.tokenizer.eos_token_id,
             )
     except Exception as exc:
+        del inputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         raise InferenceError(f"{pass_name} inference failed: {exc}") from exc
     if torch.cuda.is_available():
         torch.cuda.synchronize()
@@ -611,6 +614,9 @@ def _generate(
                 pad_token_id=runtime.processor.tokenizer.eos_token_id,
             )
     except Exception as exc:
+        del inputs
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         raise InferenceError(f"{pass_name} inference failed: {exc}") from exc
     if torch.cuda.is_available():
         torch.cuda.synchronize()
