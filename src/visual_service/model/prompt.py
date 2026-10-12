@@ -257,6 +257,15 @@ EVIDENCE QUALITY
   evolving on-screen caption.
 - Missing fragments between items must not be invented.
 
+EVIDENCE STRUCTURE
+- Evidence items are organized into groups separated by blank lines.
+- Items within the same group appeared close together in the video.
+- Items in different groups appeared at different points.
+- Adjacent items within a group may be consecutive parts of the same on-screen
+  caption.
+- Do not combine items from distant groups into a single claim unless the meaning
+  connection is independently clear from the text itself.
+
 GROUNDING RULES
 - Base every idea and theme only on the evidence lines above.
 - Each idea must reference at least one evidence ID.
@@ -274,6 +283,22 @@ GROUNDING RULES
 - Do not create an idea merely because one isolated noun appears.
 - Distinguish coherent caption sequences from unrelated signage.
 - Prioritize ideas that explain what the text communicates as a whole.
+- Do not promote incidental environmental text into communicatedIdeas or themes.
+  Incidental environmental text includes: street names, addresses, license plates,
+  storefront names, vehicle markings, isolated numbers, product labels, codes,
+  location labels, and unrelated branding.
+- A communicated idea must represent a coherent message that the video intentionally
+  presents to the viewer, not merely text visible in the background.
+- A theme must capture the meaning of central communicated content, not describe
+  the evidence format or extraction process.
+- Do not use themes such as "Environmental text", "OCR", "Captions",
+  "Visible words", or other labels that describe the evidence medium.
+- If evidence is incidental or unrelated to the central communicated message, omit
+  it completely from communicatedIdeas and themes.
+- Do not mention, classify, summarize, list, or explain omitted incidental evidence
+  anywhere in the JSON output.
+- The exact OCR evidence remains stored elsewhere and does not need to be
+  acknowledged in this response.
 
 COMPACTNESS
 - Each communicated idea should normally contain no more than 25 words.
@@ -282,6 +307,19 @@ COMPACTNESS
 - Avoid repeating the same evidence across multiple nearly identical ideas.
 - Ensure late evidence can influence selection equally with early evidence.
 - Select video-level meaning after considering all evidence.
+- Use natural, concise wording. Avoid redundant phrasing such as restating
+  that the text appears on screen or asking a question about itself.
+- Avoid self-referential constructions such as "The text asks the viewer to identify
+  their identity." Prefer "The text poses questions about identity and name."
+- Do not expand partially visible proper names.
+- Return only distinct, high-value central ideas. Most videos should produce 1-4
+  communicated ideas and 1-4 themes. Return fewer when fewer are supported. Empty
+  arrays are valid. Do not fill the configured maximum. Do not add lower-value items
+  merely to reach a count.
+- Use only the smallest representative evidence set needed to support an item. Most
+  items should cite 1-4 evidence IDs. The configured limit of {max_evidence_references}
+  is a hard maximum, not a target. Repeated OCR captures of the same statement do not
+  require repeated citations.
 
 FORBIDDEN
 - Do not make visual claims — you have no access to images.

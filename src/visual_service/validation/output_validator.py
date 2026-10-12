@@ -20,6 +20,24 @@ class ModelOutputTruncated(ModelOutputInvalid):
 
 
 OBSERVATION_TYPES = frozenset({"action", "scene", "appearance"})
+
+BLOCKED_THEME_TEXTS: frozenset[str] = frozenset({
+    "environmental text",
+    "incidental text",
+    "visible text",
+    "ocr",
+    "captions",
+    "caption text",
+    "signage",
+    "labels and codes",
+})
+
+BLOCKED_IDEA_PHRASES: tuple[str, ...] = (
+    "incidental environmental text",
+    "unrelated environmental text",
+    "random phrases appear as unrelated",
+    "specific locations and codes appear incidentally",
+)
 FORBIDDEN_TEMPORAL_KEYS = frozenset({
     "startMs", "endMs", "timestamp", "timestamps", "duration",
     "durationMs", "frame", "frameIndex", "frameIndices", "relativeMs",
@@ -479,6 +497,12 @@ def validate_synthesis_output(
             warnings.append(f"Removed duplicate idea: {idea_text[:80]}")
             continue
         seen_ideas.add(idea_key)
+        if any(phrase in idea_key for phrase in BLOCKED_IDEA_PHRASES):
+            warnings.append(
+                f"Rejected incidental-description idea at communicatedIdeas[{idx}]: "
+                f"{idea_text[:80]!r}"
+            )
+            continue
         valid_ideas.append(SynthesisIdeaItem(idea=idea_text.strip(), evidence=valid_ev))
 
     if len(valid_ideas) > max_communicated_ideas:
@@ -529,6 +553,9 @@ def validate_synthesis_output(
             warnings.append(f"Removed duplicate theme: {theme_text[:80]}")
             continue
         seen_themes.add(theme_key)
+        if theme_key in BLOCKED_THEME_TEXTS:
+            warnings.append(f"Rejected meta-theme at themes[{idx}]: {theme_text!r}")
+            continue
         valid_themes.append(SynthesisThemeItem(theme=theme_text.strip(), evidence=valid_ev))
 
     if len(valid_themes) > max_themes:

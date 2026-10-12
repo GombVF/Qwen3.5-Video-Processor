@@ -661,3 +661,117 @@ def test_synthesis_excessive_evidence_preserves_neighbors():
     assert len(result.output.communicatedIdeas) == 2
     assert result.output.communicatedIdeas[0].idea == "Good idea."
     assert result.output.communicatedIdeas[1].idea == "Another good idea."
+
+
+def test_synthesis_does_not_rewrite_content():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Exact wording preserved.", "evidence": ["text-0001"]}
+        ],
+        "themes": [
+            {"theme": "exact theme", "evidence": ["text-0002"]}
+        ],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert result.output.communicatedIdeas[0].idea == "Exact wording preserved."
+    assert result.output.themes[0].theme == "exact theme"
+
+
+def test_synthesis_does_not_manufacture_references():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "An idea.", "evidence": ["text-0001"]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert result.output.communicatedIdeas[0].evidence == ["text-0001"]
+    all_ev = []
+    for item in result.output.communicatedIdeas:
+        all_ev.extend(item.evidence)
+    for item in result.output.themes:
+        all_ev.extend(item.evidence)
+    assert all(ev in _EVIDENCE_IDS for ev in all_ev)
+
+
+def test_environmental_text_rejected_as_theme():
+    raw = json.dumps({
+        "communicatedIdeas": [],
+        "themes": [
+            {"theme": "Environmental text", "evidence": ["text-0001"]},
+            {"theme": "Identity", "evidence": ["text-0002"]},
+        ],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.themes) == 1
+    assert result.output.themes[0].theme == "Identity"
+
+
+def test_normalized_meta_themes_rejected():
+    for meta in ["OCR", "Captions", "visible text", "SIGNAGE"]:
+        raw = json.dumps({
+            "communicatedIdeas": [],
+            "themes": [{"theme": meta, "evidence": ["text-0001"]}],
+        })
+        result = validate_synthesis_output(raw, **_synthesis_kwargs())
+        assert len(result.output.themes) == 0, f"{meta!r} should be blocked"
+
+
+def test_legitimate_themes_not_rejected():
+    for theme in ["California wildlife", "Street art", "Label design"]:
+        raw = json.dumps({
+            "communicatedIdeas": [],
+            "themes": [{"theme": theme, "evidence": ["text-0001"]}],
+        })
+        result = validate_synthesis_output(raw, **_synthesis_kwargs())
+        assert len(result.output.themes) == 1
+        assert result.output.themes[0].theme == theme
+
+
+def test_incidental_idea_phrases_rejected():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "The text mentions incidental environmental text such as CALIFORNIA.", "evidence": ["text-0001"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 0
+
+
+def test_diagnostic_warning_on_rejection():
+    raw = json.dumps({
+        "communicatedIdeas": [],
+        "themes": [{"theme": "Environmental text", "evidence": ["text-0001"]}],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert any("Rejected meta-theme" in w for w in result.warnings)
+
+
+def test_valid_ideas_not_rewritten():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "The text poses questions about identity.", "evidence": ["text-0001"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].idea == "The text poses questions about identity."
+
+
+def test_no_evidence_invented_by_blocklist():
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Text mentions incidental environmental text.", "evidence": ["text-0001"]},
+            {"idea": "Valid idea.", "evidence": ["text-0002"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(raw, **_synthesis_kwargs())
+    assert len(result.output.communicatedIdeas) == 1
+    assert result.output.communicatedIdeas[0].idea == "Valid idea."
+    all_ev = []
+    for item in result.output.communicatedIdeas:
+        all_ev.extend(item.evidence)
+    assert all(ev in _EVIDENCE_IDS for ev in all_ev)

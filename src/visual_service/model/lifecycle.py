@@ -94,7 +94,7 @@ async def load_qwen_runtime(config: Settings) -> QwenRuntime:
             "AutoModelForMultimodalLM. Run scripts/setup-wsl.sh."
         ) from exc
 
-    allowed_prompts = {PROMPT_VERSION, "visual-analysis-qwen35-v5", "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
+    allowed_prompts = {PROMPT_VERSION, "visual-analysis-qwen35-v7", "visual-analysis-qwen35-v6", "visual-analysis-qwen35-v5", "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
     if config.qwen_prompt_version not in allowed_prompts:
         raise ValueError(f"Only prompts {sorted(allowed_prompts)!r} are supported")
     if not torch.cuda.is_available():

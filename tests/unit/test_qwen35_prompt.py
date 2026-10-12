@@ -12,8 +12,8 @@ from visual_service.model.prompt import (
 from visual_service.settings import PROMPT_VERSION
 
 
-def test_prompt_version_is_v6():
-    assert PROMPT_VERSION == "visual-analysis-qwen35-v6"
+def test_prompt_version_is_v8():
+    assert PROMPT_VERSION == "visual-analysis-qwen35-v8"
 
 
 @pytest.mark.parametrize("forbidden", [
@@ -320,6 +320,54 @@ def test_synthesis_prompt_invalid_evidence_refs_rejected():
         )
 
 
+def test_synthesis_prompt_distinguishes_central_from_incidental():
+    prompt = _synthesis_prompt()
+    assert "incidental environmental text" in prompt
+    assert "Do not promote" in prompt
+
+
+def test_synthesis_prompt_excludes_incidental_examples():
+    prompt = _synthesis_prompt()
+    for term in ["addresses", "license plates", "codes", "street names", "storefront names"]:
+        assert term in prompt
+
+
+def test_synthesis_prompt_forbids_medium_themes():
+    prompt = _synthesis_prompt()
+    assert '"Environmental text"' in prompt
+    assert '"OCR"' in prompt
+    assert '"Captions"' in prompt
+    assert '"Visible words"' in prompt
+    assert "evidence medium" in prompt
+
+
+def test_synthesis_prompt_describes_evidence_structure():
+    prompt = _synthesis_prompt()
+    assert "groups separated by blank lines" in prompt
+    assert "close together" in prompt
+
+
+def test_synthesis_prompt_cross_fragment_composition():
+    prompt = _synthesis_prompt()
+    assert "distant groups" in prompt
+
+
+def test_synthesis_prompt_natural_wording():
+    prompt = _synthesis_prompt()
+    assert "redundant phrasing" in prompt
+
+
+def test_synthesis_prompt_allows_identity_content():
+    prompt = _synthesis_prompt()
+    for prohibited_term in ["identity", "divinity", "philosophy", "introspection"]:
+        assert prohibited_term not in prompt.split("FORBIDDEN")[1].split("OUTPUT")[0]
+
+
+def test_synthesis_prompt_allows_sound_text_attribution():
+    prompt = _synthesis_prompt()
+    assert "On-screen text says" in prompt
+
+
 def test_synthesis_system_prompt_is_text_only():
     assert "pixels" not in SYNTHESIS_SYSTEM_PROMPT
     assert "images" not in SYNTHESIS_SYSTEM_PROMPT.lower() or "no access to images" in SYNTHESIS_SYSTEM_PROMPT.lower()
@@ -360,3 +408,39 @@ def test_synthesis_prompt_invalid_limits_rejected():
             max_communicated_ideas=-1,
             max_themes=8,
         )
+
+
+def test_synthesis_prompt_silent_omission():
+    prompt = _synthesis_prompt()
+    assert "it completely from communicatedIdeas and themes" in prompt
+
+
+def test_synthesis_prompt_no_mention_omitted():
+    prompt = _synthesis_prompt()
+    assert "Do not mention, classify, summarize" in prompt
+    assert "omitted incidental evidence" in prompt
+
+
+def test_synthesis_prompt_maxima_are_ceilings():
+    prompt = _synthesis_prompt()
+    assert "Do not fill the configured maximum" in prompt
+
+
+def test_synthesis_prompt_1_4_recommendation():
+    prompt = _synthesis_prompt()
+    assert "1-4" in prompt
+
+
+def test_synthesis_prompt_minimum_evidence_set():
+    prompt = _synthesis_prompt()
+    assert "smallest representative evidence set" in prompt
+
+
+def test_synthesis_prompt_self_referential():
+    prompt = _synthesis_prompt()
+    assert "self-referential constructions" in prompt
+
+
+def test_synthesis_prompt_no_expand_names():
+    prompt = _synthesis_prompt()
+    assert "Do not expand partially visible proper names" in prompt

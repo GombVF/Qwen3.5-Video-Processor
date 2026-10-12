@@ -209,6 +209,10 @@ async def run() -> None:
                     "generatedTokens": sa.generated_tokens,
                     "inferenceMs": sa.inference_ms,
                     "finishReason": sa.finish_reason,
+                    "evidenceItemCount": sa.evidence_item_count,
+                    "evidenceGroupCount": sa.evidence_group_count,
+                    "groupSizes": sa.evidence_group_sizes,
+                    "largestGroupSpan": sa.evidence_largest_group_span,
                 }
             results.append(video_entry)
 

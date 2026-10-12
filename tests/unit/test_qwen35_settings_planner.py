@@ -79,6 +79,16 @@ def test_v5_prompt_version_still_accepted():
     assert config.qwen_prompt_version == "visual-analysis-qwen35-v5"
 
 
+def test_v6_prompt_version_still_accepted():
+    config = Settings(qwen_prompt_version="visual-analysis-qwen35-v6")
+    assert config.qwen_prompt_version == "visual-analysis-qwen35-v6"
+
+
+def test_v7_prompt_version_still_accepted():
+    config = Settings(qwen_prompt_version="visual-analysis-qwen35-v7")
+    assert config.qwen_prompt_version == "visual-analysis-qwen35-v7"
+
+
 def test_grounded_text_understanding_default():
     config = Settings()
     assert config.grounded_text_understanding_enabled is True

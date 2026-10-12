@@ -8,7 +8,7 @@ from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-PROMPT_VERSION = "visual-analysis-qwen35-v6"
+PROMPT_VERSION = "visual-analysis-qwen35-v8"
 SCHEMA_VERSION = "6.0"
 
 
@@ -140,7 +140,7 @@ class Settings(BaseSettings):
     @field_validator("qwen_prompt_version")
     @classmethod
     def validate_prompt_version(cls, value: str) -> str:
-        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v5", "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
+        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v7", "visual-analysis-qwen35-v6", "visual-analysis-qwen35-v5", "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
         if value not in allowed:
             raise ValueError(f"Only {sorted(allowed)!r} are supported")
         return value

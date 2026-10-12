@@ -70,6 +70,10 @@ class GenerationAttempt:
     decode_attempts: int = 1
     decode_strategy: str = "not-applicable"
     input_tokens: int | None = None
+    evidence_item_count: int | None = None
+    evidence_group_count: int | None = None
+    evidence_group_sizes: list[int] | None = None
+    evidence_largest_group_span: int | None = None
 
 
 @dataclass
@@ -338,6 +342,11 @@ def _locked_grounded_synthesis(
             max_new_tokens=config.grounded_synthesis_max_new_tokens,
             pass_name="grounded-synthesis",
         )
+        attempt.evidence_item_count = len(evidence_set.items)
+        attempt.evidence_group_count = evidence_set.group_count
+        if evidence_set.groups:
+            attempt.evidence_group_sizes = [g.item_count for g in evidence_set.groups]
+            attempt.evidence_largest_group_span = max(g.span for g in evidence_set.groups)
 
         evidence_given = [
             {"id": item.id, "text": item.text}

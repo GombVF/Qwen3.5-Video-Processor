@@ -650,3 +650,22 @@ async def test_synthesis_budget_preserves_input_tokens(tmp_path):
         )
 
     assert result.metrics.groundedTextPass.inputTokens is not None
+
+
+@pytest.mark.asyncio
+async def test_visible_texts_preserved_in_consolidation(tmp_path):
+    media = tmp_path / "video.mp4"
+    ocr = _ocr_result(texts=["CALIFORNIA", "123 Main St", "philosophical caption"], frame_seqs=[0, 5, 10])
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=ocr)), \
+         patch("visual_service.model.pipeline.analyze_grounded_synthesis", AsyncMock(return_value=_synthesis_result(ideas=["Philosophical idea."]))):
+        result = await run_visual_pipeline(
+            _mock_runtime(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=True),
+        )
+
+    assert "CALIFORNIA" in result.consolidated.visible_texts
+    assert "123 Main St" in result.consolidated.visible_texts
+    assert "philosophical caption" in result.consolidated.visible_texts
