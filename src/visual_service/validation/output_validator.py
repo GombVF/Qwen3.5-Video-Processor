@@ -412,6 +412,7 @@ def validate_synthesis_output(
     valid_evidence_ids: frozenset[str],
     max_communicated_ideas: int,
     max_themes: int,
+    max_evidence_references_per_item: int | None = None,
 ) -> ValidationResult:
     try:
         data, warnings = _parse_json_value(raw_text)
@@ -467,6 +468,12 @@ def validate_synthesis_output(
                 f"Rejected idea with no valid evidence IDs at communicatedIdeas[{idx}]"
             )
             continue
+        if max_evidence_references_per_item is not None and len(valid_ev) > max_evidence_references_per_item:
+            warnings.append(
+                f"Rejected idea with {len(valid_ev)} evidence references "
+                f"(max {max_evidence_references_per_item}) at communicatedIdeas[{idx}]"
+            )
+            continue
         idea_key = idea_text.strip().casefold()
         if idea_key in seen_ideas:
             warnings.append(f"Removed duplicate idea: {idea_text[:80]}")
@@ -510,6 +517,12 @@ def validate_synthesis_output(
             valid_ev.append(ev_id)
         if not valid_ev:
             warnings.append(f"Rejected theme with no valid evidence IDs at themes[{idx}]")
+            continue
+        if max_evidence_references_per_item is not None and len(valid_ev) > max_evidence_references_per_item:
+            warnings.append(
+                f"Rejected theme with {len(valid_ev)} evidence references "
+                f"(max {max_evidence_references_per_item}) at themes[{idx}]"
+            )
             continue
         theme_key = theme_text.strip().casefold()
         if theme_key in seen_themes:

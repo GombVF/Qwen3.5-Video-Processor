@@ -27,7 +27,7 @@ def test_public_semantic_contract_has_no_temporal_fields():
         ),
         versions=VersionsDetail(
             torch="2.9.1", transformers="5.11.0", qwenVlUtils="0.0.14",
-            prompt="visual-analysis-qwen35-v5", schema="6.0",
+            prompt="visual-analysis-qwen35-v6", schema="6.0",
         ),
         visual=VisualContent(
             summary="Una persona prepara comida.",
@@ -147,7 +147,7 @@ def test_model_info_includes_kernel_diagnostics():
         transformersVersion="5.18.0",
         toolkitVersion="0.0.14",
         videoBackend="pyav",
-        promptVersion="visual-analysis-qwen35-v5",
+        promptVersion="visual-analysis-qwen35-v6",
         schemaVersion="6.0",
         loadedAt="2026-01-01T00:00:00",
     )

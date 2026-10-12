@@ -278,6 +278,7 @@ async def run() -> None:
                 "videoDecodeStrategy": "pyav-uniform",
                 "videoFramePolicy": settings.semantic_frame_policy.value,
                 "groundedSynthesisMaxNewTokens": settings.grounded_synthesis_max_new_tokens,
+                "maxEvidenceReferencesPerSynthesisItem": settings.max_evidence_references_per_synthesis_item,
                 "maxFinalCommunicatedIdeas": settings.max_final_communicated_ideas,
                 "maxFinalThemes": settings.max_final_themes,
             },

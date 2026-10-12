@@ -233,9 +233,11 @@ def build_grounded_synthesis_prompt(
     evidence_count: int,
     max_communicated_ideas: int,
     max_themes: int,
+    max_evidence_references: int = 6,
 ) -> str:
     _validate_limit("max_communicated_ideas", max_communicated_ideas)
     _validate_limit("max_themes", max_themes)
+    _validate_limit("max_evidence_references", max_evidence_references)
     if not evidence_block or evidence_count < 1:
         raise ValueError("evidence_block must be nonempty with evidence_count >= 1")
     return f"""TASK
@@ -260,6 +262,9 @@ GROUNDING RULES
 - Each idea must reference at least one evidence ID.
 - Each theme must reference at least one evidence ID.
 - Reference only the evidence IDs supplied above.
+- Reference at most {max_evidence_references} evidence IDs per item.
+  Select the strongest representative evidence. Do not cite every related
+  fragment.
 - Do not invent, guess, or complete content that is not present in the evidence.
 - Do not silently repair grammar or spelling in the evidence.
 - When a fragment is ambiguous or too short to interpret, omit it.
@@ -269,6 +274,14 @@ GROUNDING RULES
 - Do not create an idea merely because one isolated noun appears.
 - Distinguish coherent caption sequences from unrelated signage.
 - Prioritize ideas that explain what the text communicates as a whole.
+
+COMPACTNESS
+- Each communicated idea should normally contain no more than 25 words.
+- Each theme should normally contain no more than 5 words.
+- Prefer fewer strong ideas over exhaustive coverage.
+- Avoid repeating the same evidence across multiple nearly identical ideas.
+- Ensure late evidence can influence selection equally with early evidence.
+- Select video-level meaning after considering all evidence.
 
 FORBIDDEN
 - Do not make visual claims — you have no access to images.

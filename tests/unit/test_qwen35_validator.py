@@ -428,7 +428,7 @@ _EVIDENCE_IDS = frozenset(["text-0001", "text-0002", "text-0003"])
 
 
 def _synthesis_kwargs():
-    return dict(valid_evidence_ids=_EVIDENCE_IDS, max_communicated_ideas=8, max_themes=8)
+    return dict(valid_evidence_ids=_EVIDENCE_IDS, max_communicated_ideas=8, max_themes=8, max_evidence_references_per_item=6)
 
 
 def test_valid_synthesis_output_accepted():
@@ -611,3 +611,53 @@ def test_synthesis_no_repair_inference():
     assert len(result.output.communicatedIdeas) == 0
     assert len(result.output.themes) == 0
     assert not result.is_partial
+
+
+def test_synthesis_excessive_evidence_rejects_item():
+    evidence_ids = frozenset([f"text-{i:04d}" for i in range(10)])
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Too many refs.", "evidence": [f"text-{i:04d}" for i in range(7)]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(
+        raw, valid_evidence_ids=evidence_ids, max_communicated_ideas=8,
+        max_themes=8, max_evidence_references_per_item=6,
+    )
+    assert len(result.output.communicatedIdeas) == 0
+    assert any("Rejected idea" in w and "7 evidence references" in w for w in result.warnings)
+
+
+def test_synthesis_evidence_at_limit_accepted():
+    evidence_ids = frozenset([f"text-{i:04d}" for i in range(10)])
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Exactly at limit.", "evidence": [f"text-{i:04d}" for i in range(6)]}
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(
+        raw, valid_evidence_ids=evidence_ids, max_communicated_ideas=8,
+        max_themes=8, max_evidence_references_per_item=6,
+    )
+    assert len(result.output.communicatedIdeas) == 1
+
+
+def test_synthesis_excessive_evidence_preserves_neighbors():
+    evidence_ids = frozenset([f"text-{i:04d}" for i in range(10)])
+    raw = json.dumps({
+        "communicatedIdeas": [
+            {"idea": "Good idea.", "evidence": ["text-0001"]},
+            {"idea": "Too many refs.", "evidence": [f"text-{i:04d}" for i in range(7)]},
+            {"idea": "Another good idea.", "evidence": ["text-0002"]},
+        ],
+        "themes": [],
+    })
+    result = validate_synthesis_output(
+        raw, valid_evidence_ids=evidence_ids, max_communicated_ideas=8,
+        max_themes=8, max_evidence_references_per_item=6,
+    )
+    assert len(result.output.communicatedIdeas) == 2
+    assert result.output.communicatedIdeas[0].idea == "Good idea."
+    assert result.output.communicatedIdeas[1].idea == "Another good idea."

@@ -74,6 +74,11 @@ def test_v4_prompt_version_still_accepted():
     assert config.qwen_prompt_version == "visual-analysis-qwen35-v4"
 
 
+def test_v5_prompt_version_still_accepted():
+    config = Settings(qwen_prompt_version="visual-analysis-qwen35-v5")
+    assert config.qwen_prompt_version == "visual-analysis-qwen35-v5"
+
+
 def test_grounded_text_understanding_default():
     config = Settings()
     assert config.grounded_text_understanding_enabled is True
@@ -95,15 +100,34 @@ def test_grounded_text_limits_configurable():
 
 def test_grounded_text_limits_defaults():
     config = Settings()
-    assert config.max_final_communicated_ideas == 8
-    assert config.max_final_themes == 8
+    assert config.max_final_communicated_ideas == 6
+    assert config.max_final_themes == 6
 
 
 def test_grounded_synthesis_max_new_tokens_configurable():
     config = Settings()
-    assert config.grounded_synthesis_max_new_tokens == 512
+    assert config.grounded_synthesis_max_new_tokens == 1024
     config2 = Settings(grounded_synthesis_max_new_tokens=256)
     assert config2.grounded_synthesis_max_new_tokens == 256
+
+
+def test_evidence_references_per_item_configurable():
+    config = Settings()
+    assert config.max_evidence_references_per_synthesis_item == 6
+    config2 = Settings(max_evidence_references_per_synthesis_item=3)
+    assert config2.max_evidence_references_per_synthesis_item == 3
+
+
+def test_invalid_synthesis_budget_rejected():
+    with pytest.raises(ValueError, match="Grounded synthesis max_new_tokens must be positive"):
+        config = Settings(grounded_synthesis_max_new_tokens=0)
+        config.validate_runtime_budget()
+
+
+def test_invalid_evidence_references_rejected():
+    with pytest.raises(ValueError, match="Max evidence references per synthesis item must be positive"):
+        config = Settings(max_evidence_references_per_synthesis_item=0)
+        config.validate_runtime_budget()
 
 
 def test_thinking_cannot_be_enabled():

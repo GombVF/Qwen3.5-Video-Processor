@@ -8,7 +8,7 @@ from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-PROMPT_VERSION = "visual-analysis-qwen35-v5"
+PROMPT_VERSION = "visual-analysis-qwen35-v6"
 SCHEMA_VERSION = "6.0"
 
 
@@ -103,15 +103,16 @@ class Settings(BaseSettings):
     ocr_batch_size: int = 4
     ocr_max_new_tokens: int = 384
 
-    grounded_synthesis_max_new_tokens: int = 512
+    grounded_synthesis_max_new_tokens: int = 1024
+    max_evidence_references_per_synthesis_item: int = 6
 
     max_summary_sentences: int = 3
     max_observations_per_window: int = 8
     max_visible_texts_per_image: int = 12
     max_objects_per_window: int = 12
     max_global_topics: int = 10
-    max_final_communicated_ideas: int = 8
-    max_final_themes: int = 8
+    max_final_communicated_ideas: int = 6
+    max_final_themes: int = 6
 
     consolidation_adjacent_threshold: float = 0.78
     consolidation_nonadjacent_threshold: float = 0.92
@@ -139,7 +140,7 @@ class Settings(BaseSettings):
     @field_validator("qwen_prompt_version")
     @classmethod
     def validate_prompt_version(cls, value: str) -> str:
-        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
+        allowed = {PROMPT_VERSION, "visual-analysis-qwen35-v5", "visual-analysis-qwen35-v4", "visual-analysis-qwen35-v3", "visual-analysis-qwen35-v2"}
         if value not in allowed:
             raise ValueError(f"Only {sorted(allowed)!r} are supported")
         return value
@@ -182,6 +183,10 @@ class Settings(BaseSettings):
             raise ValueError("FIXED_MAX semantic policy requires max_frames >= 2")
         if self.global_overview_frame_policy == FramePolicy.FIXED_MAX and self.global_overview_max_frames < 2:
             raise ValueError("FIXED_MAX global overview policy requires max_frames >= 2")
+        if self.grounded_synthesis_max_new_tokens < 1:
+            raise ValueError("Grounded synthesis max_new_tokens must be positive")
+        if self.max_evidence_references_per_synthesis_item < 1:
+            raise ValueError("Max evidence references per synthesis item must be positive")
         return self
 
 

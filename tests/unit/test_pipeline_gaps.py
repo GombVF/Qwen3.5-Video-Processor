@@ -560,3 +560,93 @@ async def test_long_video_segmentation_still_works(tmp_path):
         result = await run_visual_pipeline(_mock_runtime(), media, 65_000, config)
 
     assert result.metrics.windowAccounting.plannedWindows >= 6
+
+
+# --- Budget exhaustion / metrics preservation ---
+
+def _exhausted_synthesis_result():
+    attempt = _attempt("grounded-synthesis", partial=True)
+    attempt.finish_reason = "length"
+    attempt.inference_ms = 500
+    attempt.input_tokens = 2048
+    return SynthesisResult(
+        communicated_ideas=[],
+        themes=[],
+        evidence_given=[],
+        raw_output='{"communicatedIdeas": [{"idea": "trun',
+        validated_ideas=[],
+        validated_themes=[],
+        attempt=attempt,
+        is_partial=True,
+    )
+
+
+@pytest.mark.asyncio
+async def test_synthesis_budget_exhaustion_preserves_attempt(tmp_path):
+    media = tmp_path / "video.mp4"
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=_ocr_result())), \
+         patch("visual_service.model.pipeline.analyze_grounded_synthesis", AsyncMock(return_value=_exhausted_synthesis_result())):
+        result = await run_visual_pipeline(
+            _mock_runtime(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=True),
+        )
+
+    assert result.metrics.groundedTextPass.inferenceCount == 1
+    assert result.metrics.groundedTextPass.inferenceMs > 0
+    assert result.metrics.groundedTextPass.status == PassStatus.FAILED
+    assert any(a.pass_name == "grounded-synthesis" for a in result.trace.attempts)
+
+
+@pytest.mark.asyncio
+async def test_synthesis_partial_content_is_partial_status(tmp_path):
+    media = tmp_path / "video.mp4"
+    partial = _synthesis_result(ideas=["Partial idea."], partial=True)
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=_ocr_result())), \
+         patch("visual_service.model.pipeline.analyze_grounded_synthesis", AsyncMock(return_value=partial)):
+        result = await run_visual_pipeline(
+            _mock_runtime(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=True),
+        )
+
+    assert result.metrics.groundedTextPass.status == PassStatus.PARTIAL
+    assert result.consolidated.communicated_ideas == ["Partial idea."]
+
+
+@pytest.mark.asyncio
+async def test_synthesis_budget_preserves_raw_output(tmp_path):
+    media = tmp_path / "video.mp4"
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=_ocr_result())), \
+         patch("visual_service.model.pipeline.analyze_grounded_synthesis", AsyncMock(return_value=_exhausted_synthesis_result())):
+        result = await run_visual_pipeline(
+            _mock_runtime(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=True),
+        )
+
+    synthesis_attempts = [a for a in result.trace.attempts if a.pass_name == "grounded-synthesis"]
+    assert len(synthesis_attempts) == 1
+    assert synthesis_attempts[0].raw_output != ""
+
+
+@pytest.mark.asyncio
+async def test_synthesis_budget_preserves_input_tokens(tmp_path):
+    media = tmp_path / "video.mp4"
+
+    with patch("visual_service.model.pipeline.analyze_global_overview", AsyncMock(return_value=_global_result())), \
+         patch("visual_service.model.pipeline.analyze_window", AsyncMock(return_value=_window_result())), \
+         patch("visual_service.model.pipeline.analyze_ocr_video", AsyncMock(return_value=_ocr_result())), \
+         patch("visual_service.model.pipeline.analyze_grounded_synthesis", AsyncMock(return_value=_exhausted_synthesis_result())):
+        result = await run_visual_pipeline(
+            _mock_runtime(), media, 12_000,
+            Settings(grounded_text_understanding_enabled=True),
+        )
+
+    assert result.metrics.groundedTextPass.inputTokens is not None

@@ -206,10 +206,15 @@ async def run_visual_pipeline(
                     synthesis_attempts.append(synthesis_result.attempt)
                     trace.attempts.append(synthesis_result.attempt)
                     warnings.extend(synthesis_result.attempt.warnings)
-                    synthesis_status = (
-                        PassStatus.PARTIAL if synthesis_result.is_partial
-                        else PassStatus.COMPLETE
-                    )
+                    if synthesis_communicated_ideas or synthesis_themes:
+                        synthesis_status = (
+                            PassStatus.PARTIAL if synthesis_result.is_partial
+                            else PassStatus.COMPLETE
+                        )
+                    elif synthesis_result.is_partial:
+                        synthesis_status = PassStatus.FAILED
+                    else:
+                        synthesis_status = PassStatus.COMPLETE
                 except Exception as exc:
                     logger.warning(
                         "grounded_synthesis_failed",

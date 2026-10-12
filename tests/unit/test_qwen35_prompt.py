@@ -12,8 +12,8 @@ from visual_service.model.prompt import (
 from visual_service.settings import PROMPT_VERSION
 
 
-def test_prompt_version_is_v5():
-    assert PROMPT_VERSION == "visual-analysis-qwen35-v5"
+def test_prompt_version_is_v6():
+    assert PROMPT_VERSION == "visual-analysis-qwen35-v6"
 
 
 @pytest.mark.parametrize("forbidden", [
@@ -216,6 +216,7 @@ def _synthesis_prompt():
         evidence_count=2,
         max_communicated_ideas=8,
         max_themes=8,
+        max_evidence_references=6,
     )
 
 
@@ -271,9 +272,52 @@ def test_synthesis_prompt_includes_configured_limits():
         evidence_count=1,
         max_communicated_ideas=5,
         max_themes=3,
+        max_evidence_references=4,
     )
     assert "5" in prompt
     assert "3" in prompt
+
+
+def test_synthesis_prompt_requests_concise_ideas():
+    prompt = _synthesis_prompt()
+    assert "25 words" in prompt
+
+
+def test_synthesis_prompt_requests_concise_themes():
+    prompt = _synthesis_prompt()
+    assert "5 words" in prompt
+
+
+def test_synthesis_prompt_limits_evidence_references():
+    prompt = _synthesis_prompt()
+    assert "6" in prompt
+    assert "evidence IDs per item" in prompt
+
+
+def test_synthesis_prompt_requests_representative_evidence():
+    prompt = _synthesis_prompt()
+    assert "strongest" in prompt or "representative" in prompt
+
+
+def test_synthesis_prompt_prohibits_exhaustive_citation():
+    prompt = _synthesis_prompt()
+    assert "Do not cite every" in prompt
+
+
+def test_synthesis_prompt_allows_late_evidence():
+    prompt = _synthesis_prompt()
+    assert "late evidence" in prompt
+
+
+def test_synthesis_prompt_invalid_evidence_refs_rejected():
+    with pytest.raises(ValueError):
+        build_grounded_synthesis_prompt(
+            evidence_block="[text-0001] test",
+            evidence_count=1,
+            max_communicated_ideas=8,
+            max_themes=8,
+            max_evidence_references=-1,
+        )
 
 
 def test_synthesis_system_prompt_is_text_only():

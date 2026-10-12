@@ -326,6 +326,7 @@ def _locked_grounded_synthesis(
             evidence_count=len(evidence_set.items),
             max_communicated_ideas=config.max_final_communicated_ideas,
             max_themes=config.max_final_themes,
+            max_evidence_references=config.max_evidence_references_per_synthesis_item,
         )
         messages = [
             {"role": "system", "content": SYNTHESIS_SYSTEM_PROMPT},
@@ -337,39 +338,56 @@ def _locked_grounded_synthesis(
             max_new_tokens=config.grounded_synthesis_max_new_tokens,
             pass_name="grounded-synthesis",
         )
-        validation, partial, warnings = _validate_synthesis_with_salvage(
-            attempt,
-            valid_evidence_ids=evidence_set.id_set,
-            max_communicated_ideas=config.max_final_communicated_ideas,
-            max_themes=config.max_final_themes,
-        )
-        attempt.is_partial = partial
-        attempt.warnings.extend(warnings)
 
-        public_ideas = [item.idea for item in validation.output.communicatedIdeas]
-        public_themes = [item.theme for item in validation.output.themes]
-        validated_ideas = [
-            {"idea": item.idea, "evidence": item.evidence}
-            for item in validation.output.communicatedIdeas
-        ]
-        validated_themes = [
-            {"theme": item.theme, "evidence": item.evidence}
-            for item in validation.output.themes
-        ]
         evidence_given = [
             {"id": item.id, "text": item.text}
             for item in evidence_set.items
         ]
-        return SynthesisResult(
-            communicated_ideas=public_ideas,
-            themes=public_themes,
-            evidence_given=evidence_given,
-            raw_output=attempt.raw_output,
-            validated_ideas=validated_ideas,
-            validated_themes=validated_themes,
-            attempt=attempt,
-            is_partial=partial,
-        )
+
+        try:
+            validation, partial, warnings = _validate_synthesis_with_salvage(
+                attempt,
+                valid_evidence_ids=evidence_set.id_set,
+                max_communicated_ideas=config.max_final_communicated_ideas,
+                max_themes=config.max_final_themes,
+                max_evidence_references_per_item=config.max_evidence_references_per_synthesis_item,
+            )
+            attempt.is_partial = partial
+            attempt.warnings.extend(warnings)
+
+            public_ideas = [item.idea for item in validation.output.communicatedIdeas]
+            public_themes = [item.theme for item in validation.output.themes]
+            validated_ideas = [
+                {"idea": item.idea, "evidence": item.evidence}
+                for item in validation.output.communicatedIdeas
+            ]
+            validated_themes = [
+                {"theme": item.theme, "evidence": item.evidence}
+                for item in validation.output.themes
+            ]
+            return SynthesisResult(
+                communicated_ideas=public_ideas,
+                themes=public_themes,
+                evidence_given=evidence_given,
+                raw_output=attempt.raw_output,
+                validated_ideas=validated_ideas,
+                validated_themes=validated_themes,
+                attempt=attempt,
+                is_partial=partial,
+            )
+        except ModelOutputInvalid as exc:
+            attempt.is_partial = attempt.finish_reason == "length"
+            attempt.warnings.append(str(exc))
+            return SynthesisResult(
+                communicated_ideas=[],
+                themes=[],
+                evidence_given=evidence_given,
+                raw_output=attempt.raw_output,
+                validated_ideas=[],
+                validated_themes=[],
+                attempt=attempt,
+                is_partial=attempt.is_partial,
+            )
 
 
 def _generate_video(
@@ -709,6 +727,7 @@ def _validate_synthesis_with_salvage(
     valid_evidence_ids: frozenset[str],
     max_communicated_ideas: int,
     max_themes: int,
+    max_evidence_references_per_item: int | None = None,
 ) -> tuple[Any, bool, list[str]]:
     return _validate_with_salvage(
         attempt,
@@ -717,5 +736,6 @@ def _validate_synthesis_with_salvage(
             valid_evidence_ids=valid_evidence_ids,
             max_communicated_ideas=max_communicated_ideas,
             max_themes=max_themes,
+            max_evidence_references_per_item=max_evidence_references_per_item,
         ),
     )
